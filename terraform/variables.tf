@@ -30,6 +30,20 @@ variable "sendgrid_api" {
   sensitive   = true
 }
 
+# You can also set CLOUDFLARE_API_TOKEN env variable
+# Set the variable value in *.tfvars file or use the -var="cloudflare_api_token=..." CLI option
+# variable "cloudflare_email" {
+#   type = string
+# }
+
+variable "cloudflare_api_token" {
+  type = string
+}
+
+variable "cloudflare_zone_id" {
+  type = string
+}
+
 # # You can also set TF_TOKEN_app_terraform_io
 # # Set the variable value in *.tfvars file or use the -var="_=..." CLI option
 # variable "tf_token" {
@@ -227,3 +241,4 @@ variable "smtp_reply_to_name" {
   type        = string
   default     = ""
 }
+

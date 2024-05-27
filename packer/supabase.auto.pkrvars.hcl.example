@@ -4,7 +4,7 @@
 do_token = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 ## REQUIRED ##
-region = "ams3"
+region = "xxxx"
 
 ## OPTIONAL ##
 # droplet_image = ""

@@ -34,8 +34,51 @@ resource "sendgrid_link_branding" "this" {
   valid  = true
 }
 
-resource "digitalocean_record" "domain_auth_0" {
-  domain   = var.domain
+# resource "cloudflare_record" "domain_auth_0" {
+#   zone_id  = data.cloudflare_zones.this.zones[0].id
+#   name     = trimsuffix(sendgrid_domain_authentication.this.dns[0].host, ".${var.domain}")
+#   value    = sendgrid_domain_authentication.this.dns[0].data
+#   type     = upper(sendgrid_domain_authentication.this.dns[0].type)
+#   ttl      = local.ttl[upper(sendgrid_domain_authentication.this.dns[0].type)]
+#   priority = upper("${sendgrid_domain_authentication.this.dns[0].type}") == "MX" ? 10 : null
+# }
+#
+# resource "cloudflare_record" "domain_auth_1" {
+#   zone_id  = data.cloudflare_zones.this.zones[0].id
+#   name     = trimsuffix(sendgrid_domain_authentication.this.dns[1].host, ".${var.domain}")
+#   value    = sendgrid_domain_authentication.this.dns[1].data
+#   type     = upper(sendgrid_domain_authentication.this.dns[1].type)
+#   ttl      = local.ttl[upper(sendgrid_domain_authentication.this.dns[1].type)]
+#   priority = upper("${sendgrid_domain_authentication.this.dns[1].type}") == "MX" ? 10 : null
+# }
+#
+# resource "cloudflare_record" "domain_auth_2" {
+#   zone_id  = data.cloudflare_zones.this.zones[0].id
+#   name     = trimsuffix(sendgrid_domain_authentication.this.dns[2].host, ".${var.domain}")
+#   value    = sendgrid_domain_authentication.this.dns[2].data
+#   type     = upper(sendgrid_domain_authentication.this.dns[2].type)
+#   ttl      = local.ttl[upper(sendgrid_domain_authentication.this.dns[2].type)]
+#   priority = upper("${sendgrid_domain_authentication.this.dns[2].type}") == "MX" ? 10 : null
+# }
+#
+# resource "cloudflare_record" "link_brand_0" {
+#   zone_id = data.cloudflare_zones.this.zones[0].id
+#   name    = trimsuffix(sendgrid_link_branding.this.dns[0].host, ".${var.domain}")
+#   value   = upper("${sendgrid_link_branding.this.dns[0].type}") == "CNAME" ? "${sendgrid_link_branding.this.dns[0].data}." : sendgrid_link_branding.this.dns[0].data
+#   type    = upper("${sendgrid_link_branding.this.dns[0].type}")
+#   ttl     = local.ttl[upper(sendgrid_link_branding.this.dns[0].type)]
+# }
+#
+# resource "cloudflare_record" "link_brand_1" {
+#   zone_id = data.cloudflare_zones.this.zones[0].id
+#   name    = trimsuffix(sendgrid_link_branding.this.dns[1].host, ".${var.domain}")
+#   value   = upper("${sendgrid_link_branding.this.dns[1].type}") == "CNAME" ? "${sendgrid_link_branding.this.dns[1].data}." : sendgrid_link_branding.this.dns[1].data
+#   type    = upper("${sendgrid_link_branding.this.dns[1].type}")
+#   ttl     = local.ttl[upper(sendgrid_link_branding.this.dns[1].type)]
+# }
+
+resource "cloudflare_record" "domain_auth_0" {
+  zone_id  = var.cloudflare_zone_id
   type     = upper(sendgrid_domain_authentication.this.dns[0].type)
   name     = trimsuffix(sendgrid_domain_authentication.this.dns[0].host, ".${var.domain}")
   value    = sendgrid_domain_authentication.this.dns[0].data
@@ -43,17 +86,16 @@ resource "digitalocean_record" "domain_auth_0" {
   ttl      = local.ttl[upper(sendgrid_domain_authentication.this.dns[0].type)]
 }
 
-resource "digitalocean_record" "domain_auth_1" {
-  domain   = var.domain
+resource "cloudflare_record" "domain_auth_1" {
+  zone_id  = var.cloudflare_zone_id
   type     = upper(sendgrid_domain_authentication.this.dns[1].type)
   name     = trimsuffix(sendgrid_domain_authentication.this.dns[1].host, ".${var.domain}")
   value    = sendgrid_domain_authentication.this.dns[1].data
   priority = upper("${sendgrid_domain_authentication.this.dns[1].type}") == "MX" ? 10 : null
   ttl      = local.ttl[upper(sendgrid_domain_authentication.this.dns[1].type)]
 }
-
-resource "digitalocean_record" "domain_auth_2" {
-  domain   = var.domain
+resource "cloudflare_record" "domain_auth_2" {
+  zone_id  = var.cloudflare_zone_id
   type     = upper(sendgrid_domain_authentication.this.dns[2].type)
   name     = trimsuffix(sendgrid_domain_authentication.this.dns[2].host, ".${var.domain}")
   value    = sendgrid_domain_authentication.this.dns[2].data
@@ -61,20 +103,20 @@ resource "digitalocean_record" "domain_auth_2" {
   ttl      = local.ttl[upper(sendgrid_domain_authentication.this.dns[2].type)]
 }
 
-resource "digitalocean_record" "link_brand_0" {
-  domain = var.domain
-  type   = upper("${sendgrid_link_branding.this.dns[0].type}")
-  name   = trimsuffix(sendgrid_link_branding.this.dns[0].host, ".${var.domain}")
-  value  = upper("${sendgrid_link_branding.this.dns[0].type}") == "CNAME" ? "${sendgrid_link_branding.this.dns[0].data}." : sendgrid_link_branding.this.dns[0].data
-  ttl    = local.ttl[upper(sendgrid_link_branding.this.dns[0].type)]
+resource "cloudflare_record" "link_brand_0" {
+  zone_id = var.cloudflare_zone_id
+  type    = upper("${sendgrid_link_branding.this.dns[0].type}")
+  name    = trimsuffix(sendgrid_link_branding.this.dns[0].host, ".${var.domain}")
+  value   = upper("${sendgrid_link_branding.this.dns[0].type}") == "CNAME" ? "${sendgrid_link_branding.this.dns[0].data}." : sendgrid_link_branding.this.dns[0].data
+  ttl     = local.ttl[upper(sendgrid_link_branding.this.dns[0].type)]
 }
 
-resource "digitalocean_record" "link_brand_1" {
-  domain = var.domain
-  type   = upper("${sendgrid_link_branding.this.dns[1].type}")
-  name   = trimsuffix(sendgrid_link_branding.this.dns[1].host, ".${var.domain}")
-  value  = upper("${sendgrid_link_branding.this.dns[1].type}") == "CNAME" ? "${sendgrid_link_branding.this.dns[1].data}." : sendgrid_link_branding.this.dns[1].data
-  ttl    = local.ttl[upper(sendgrid_link_branding.this.dns[1].type)]
+resource "cloudflare_record" "link_brand_1" {
+  zone_id = var.cloudflare_zone_id
+  type    = upper("${sendgrid_link_branding.this.dns[1].type}")
+  name    = trimsuffix(sendgrid_link_branding.this.dns[1].host, ".${var.domain}")
+  value   = upper("${sendgrid_link_branding.this.dns[1].type}") == "CNAME" ? "${sendgrid_link_branding.this.dns[1].data}." : sendgrid_link_branding.this.dns[1].data
+  ttl     = local.ttl[upper(sendgrid_link_branding.this.dns[1].type)]
 }
 
 resource "sendgrid_api_key" "this" {

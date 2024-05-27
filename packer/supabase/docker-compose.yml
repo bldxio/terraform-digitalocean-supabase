@@ -17,11 +17,11 @@ services:
       - URL=${DOMAIN}
       - VALIDATION=dns
       - SUBDOMAINS=supabase
-      - DNSPLUGIN=digitalocean
+      - DNSPLUGIN=cloudflare
       - ONLY_SUBDOMAINS=true
     volumes:
       - ./supabase.subdomain.conf:/config/nginx/proxy-confs/supabase.subdomain.conf
-      - ./digitalocean.ini:/config/dns-conf/digitalocean.ini
+      - ./cloudflare.ini:/config/dns-conf/cloudflare.ini
       - ./.htpasswd:/config/nginx/.htpasswd
     ports:
       - 443:443
@@ -33,7 +33,13 @@ services:
     image: supabase/studio:20230622-d8395eb
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})",
+        ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -77,7 +83,15 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health" ]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9999/health",
+        ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -140,7 +154,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "bash", "-c", "printf \\0 > /dev/tcp/localhost/4000" ]
+      test: ["CMD", "bash", "-c", "printf \\0 > /dev/tcp/localhost/4000"]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -152,7 +166,7 @@ services:
       DB_USER: supabase_admin
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB}
-      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      DB_AFTER_CONNECT_QUERY: "SET search_path TO _realtime"
       DB_ENC_KEY: supabaserealtime
       API_JWT_SECRET: ${JWT_SECRET}
       FLY_ALLOC_ID: fly123
@@ -175,7 +189,15 @@ services:
       imgproxy:
         condition: service_started
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/status" ]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5000/status",
+        ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -203,7 +225,7 @@ services:
     container_name: supabase-imgproxy
     image: darthsim/imgproxy:v3.13
     healthcheck:
-      test: [ "CMD", "imgproxy", "health" ]
+      test: ["CMD", "imgproxy", "health"]
       timeout: 5s
       interval: 5s
       retries: 3

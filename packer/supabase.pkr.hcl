@@ -7,7 +7,7 @@ packer {
     }
     hcp = {
       version = "~> 0.1"
-      source  = "github.com/hashicorp/hcp"
+      source  = "github.com/hashicorp/hcp-packer" # This is the correct source
     }
   }
 }

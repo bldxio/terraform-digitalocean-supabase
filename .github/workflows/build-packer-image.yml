@@ -33,17 +33,17 @@ jobs:
       - name: Initialize Packer
         working-directory: ./packer
         run: packer init .
-        
+
       - name: Create variables file
         run: |
           cat > packer/supabase.auto.pkrvars.hcl << EOF
           do_token = "${{ secrets.DO_API_TOKEN }}"
-          region = "${{ vars.DO_REGION }}"
-          droplet_image = "${{ vars.DO_DROPLET_IMAGE }}"
-          droplet_size = "${{ vars.DO_DROPLET_SIZE }}"
+          region = "${{ vars.DO_REGION || 'sfo3' }}"
+          droplet_image = "${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-10-x64' }}"
+          droplet_size = "${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}"
           tags = ["service=supabase", "deployedby=github-actions", "org=bldx", "env=dev"]
           EOF
-          
+
           # Mask sensitive content in logs
           cat packer/supabase.auto.pkrvars.hcl | grep -v do_token
 
@@ -53,8 +53,8 @@ jobs:
           PACKER_LOG: 1
           HCP_PACKER_BUCKET_NAME: ${{ vars.HCP_BUCKET_NAME }}
         run: |
-          # All variables are loaded from supabase.auto.pkrvars.hcl
-          packer build .
+          # Use our explicitly created variables file
+          packer build -var-file=supabase.auto.pkrvars.hcl .
 
       - name: Display HCP Packer build information
         run: |

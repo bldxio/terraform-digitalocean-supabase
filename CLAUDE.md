@@ -41,7 +41,7 @@ The repository includes a GitHub Actions workflow for automatically building Pac
 
 - Triggers when changes are pushed to the `dev` branch in the `packer/` directory
 - Uses HashiCorp Cloud Platform (HCP) Packer to store image metadata
-- Dynamically generates the `supabase.auto.pkrvars.hcl` file during workflow execution
+- Dynamically generates a variables file during workflow execution
 - Required environment variables:
   - GitHub Secrets:
     - `HCP_CLIENT_ID` - HCP client ID
@@ -58,5 +58,5 @@ The workflow will:
 1. Check out the code
 2. Set up Packer
 3. Initialize Packer
-4. Generate the `supabase.auto.pkrvars.hcl` file with values from environment variables
+4. Generate a Packer variables file with values from environment variables
 5. Build the Packer image and publish to HCP Packer

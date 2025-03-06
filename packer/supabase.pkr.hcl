@@ -6,10 +6,10 @@ packer {
       version = "1.1.1"
       source  = "github.com/digitalocean/digitalocean"
     }
-  }
-  
-  hcp_packer {
-    bucket_name = "${env("HCP_PACKER_BUCKET_NAME")}"
+    hcp = {
+      version = ">= 0.5.0"
+      source  = "github.com/hashicorp/hcp"
+    }
   }
 }
 
@@ -39,6 +39,25 @@ variable "droplet_size" {
   default     = "s-2vcpu-4gb"
 }
 
+# HCP Packer registry variables
+variable "hcp_bucket_name" {
+  description = "The name of the HCP Packer bucket where image metadata will be stored."
+  type        = string
+  default     = "supabase"
+}
+
+variable "hcp_client_id" {
+  description = "The HCP client ID for authentication."
+  type        = string
+  sensitive   = true
+}
+
+variable "hcp_client_secret" {
+  description = "The HCP client secret for authentication."
+  type        = string
+  sensitive   = true
+}
+
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 
@@ -63,18 +82,22 @@ source "digitalocean" "supabase" {
 
 build {
   sources = ["source.digitalocean.supabase"]
-  
+
+  # HCP Packer registry configuration
   hcp_packer_registry {
+    bucket_name = var.hcp_bucket_name
+    description = "Supabase image for DigitalOcean droplets"
+
     bucket_labels = {
-      "owner"          = "bldx"
+      "owner"          = "nathan@bldx.ai"
       "os"             = "ubuntu"
       "ubuntu-version" = "22.04"
-      "region"         = "${var.region}"
+      "region"         = var.region
     }
-    
+
     build_labels = {
-      "build-time"   = "${local.timestamp}"
-      "build-source" = "github-actions"
+      "build-time"   = timestamp()
+      "build-source" = "packer"
     }
   }
 

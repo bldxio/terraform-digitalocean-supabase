@@ -64,20 +64,6 @@ variable "environment" {
   default     = "dev"
 }
 
-# Retrieves information about the HCP Packer Version; a "version" can be
-# thought of as all the metadata created by a single call of `packer build`.
-data "hcp-packer-version" "ubuntu" {
-  bucket_name  = var.hcp_bucket_name
-  channel_name = var.environment
-}
-
-data "hcp-packer-artifact" "ubuntu-sfo3" {
-  bucket_name         = var.hcp_bucket_name
-  version_fingerprint = data.hcp-packer-version.ubuntu.fingerprint
-  platform            = "digitalocean"
-  region              = var.region
-}
-
 locals {
   timestamp     = regex_replace(timestamp(), "[- TZ:]", "")
   snapshot_name = "supabase-${var.environment}-${local.timestamp}"
@@ -91,7 +77,7 @@ locals {
 
 # Source configuration
 source "digitalocean" "supabase" {
-  image         = data.hcp-packer-artifact.ubuntu-sfo3.external_identifier
+  image         = var.droplet_image # Using the variable directly instead of HCP data source
   region        = var.region
   size          = var.droplet_size
   snapshot_name = local.snapshot_name
@@ -116,7 +102,6 @@ build {
       "os"           = var.droplet_image
       "region"       = var.region
       "environment"  = var.environment
-      "base-image"   = data.hcp-packer-version.ubuntu.id
     }
   }
 

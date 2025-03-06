@@ -12,30 +12,10 @@ jobs:
   build:
     name: Build Supabase Packer Image with HCP
     runs-on: ubuntu-latest
-    env:
-      HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
-      HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
-      DO_REGION: ${{ vars.DO_REGION || 'sfo3' }}
-      DO_DROPLET_IMAGE: ${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-04-x64' }}
-      DO_DROPLET_SIZE: ${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}
-      DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
-      HCP_BUCKET_NAME: ${{ vars.HCP_BUCKET_NAME }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set environment variable based on branch
-        id: set-env
-        run: |
-          if [[ "${GITHUB_REF#refs/heads/}" == "main" ]]; then
-            echo "DEPLOY_ENV=prd" >> $GITHUB_ENV
-            echo "environment=prd" >> $GITHUB_OUTPUT
-          else
-            echo "DEPLOY_ENV=dev" >> $GITHUB_ENV
-            echo "environment=dev" >> $GITHUB_OUTPUT
-          fi
-          echo "Building for environment: ${{ env.DEPLOY_ENV }}"
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
@@ -46,30 +26,20 @@ jobs:
         working-directory: ./packer
         run: packer init .
 
-      - name: Create variables file
-        run: |
-          cat > packer/supabase.auto.pkrvars.hcl << EOF
-          do_token = "${{ secrets.DO_API_TOKEN }}"
-          region = "${{ vars.DO_REGION || 'sfo3' }}"
-          droplet_image = "${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-04-x64' }}"
-          droplet_size = "${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}"
-          hcp_bucket_name = "${{ vars.HCP_BUCKET_NAME }}"
-          hcp_client_id = "${{ secrets.HCP_CLIENT_ID }}"
-          hcp_client_secret = "${{ secrets.HCP_CLIENT_SECRET }}"
-          github_actor = "${{ github.actor }}"
-          environment = "${{ env.DEPLOY_ENV }}"
-          EOF
-
-          # Mask sensitive content in logs
-          cat packer/supabase.auto.pkrvars.hcl | grep -v -E "do_token|hcp_client_id|hcp_client_secret"
-
       - name: Build and publish image with HCP Packer
         working-directory: ./packer
         env:
           PACKER_LOG: 1
-        run: |
-          # Use our explicitly created variables file
-          packer build -var-file=supabase.auto.pkrvars.hcl .
+          TF_VAR_do_token: "${{ secrets.DO_API_TOKEN }}"
+          TF_VAR_region: "${{ vars.DO_REGION }}"
+          TF_VAR_droplet_image: "${{ vars.DO_DROPLET_IMAGE }}"
+          TF_VAR_droplet_size: "${{ vars.DO_DROPLET_SIZE }}"
+          TF_VAR_hcp_bucket_name: "${{ vars.HCP_BUCKET_NAME }}"
+          TF_VAR_hcp_client_id: "${{ secrets.HCP_CLIENT_ID }}"
+          TF_VAR_hcp_client_secret: "${{ secrets.HCP_CLIENT_SECRET }}"
+          TF_VAR_github_actor: "${{ github.actor }}"
+          TF_VAR_environment: "${{ vars.DEPLOY_ENV }}"
+        run: packer build .
 
       - name: Display HCP Packer build information
         run: |

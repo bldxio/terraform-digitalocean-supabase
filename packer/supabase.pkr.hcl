@@ -2,14 +2,13 @@ packer {
   required_version = "~> 1.9.1"
   required_plugins {
     digitalocean = {
-      version = "1.1.1"
+      version = ">= 1.0.4"
       source  = "github.com/digitalocean/digitalocean"
     }
   }
 }
 
-# Set the variable value in the supabase.auto.pkvars.hcl file
-# or use -var "do_token=..." CLI option
+# Variables
 variable "do_token" {
   description = "DO API token with read and write permissions."
   type        = string
@@ -23,7 +22,7 @@ variable "region" {
 }
 
 variable "droplet_image" {
-  description = "The Droplet image ID or slug. This could be either image ID or droplet snapshot ID."
+  description = "The Droplet image ID or slug."
   type        = string
   default     = "ubuntu-22-04-x64"
 }
@@ -36,7 +35,7 @@ variable "droplet_size" {
 
 # HCP Packer registry variables
 variable "hcp_bucket_name" {
-  description = "The name of the HCP Packer bucket where image metadata will be stored."
+  description = "The name of the HCP Packer bucket."
   type        = string
   default     = "supabase"
 }
@@ -60,19 +59,20 @@ variable "github_actor" {
 }
 
 variable "environment" {
-  description = "Environment name derived from the branch (dev, prd, etc.)."
+  description = "Environment name derived from the branch."
   type        = string
   default     = "dev"
 }
 
-# Data sources to fetch the latest base image from HCP Packer registry
+# Retrieves information about the HCP Packer Version; a "version" can be
+# thought of as all the metadata created by a single call of `packer build`.
 data "hcp-packer-version" "ubuntu" {
   bucket_name  = var.hcp_bucket_name
   channel_name = var.environment
 }
 
 data "hcp-packer-artifact" "ubuntu-sfo3" {
-  bucket_name         = hcp_bucket_name
+  bucket_name         = var.hcp_bucket_name
   version_fingerprint = data.hcp-packer-version.ubuntu.fingerprint
   platform            = "digitalocean"
   region              = var.region
@@ -89,8 +89,8 @@ locals {
   ]
 }
 
-# Building from an HCP Packer registry image
-source "digitalocean" "supabase-hcp" {
+# Source configuration
+source "digitalocean" "supabase" {
   image         = data.hcp-packer-artifact.ubuntu-sfo3.external_identifier
   region        = var.region
   size          = var.droplet_size
@@ -101,26 +101,22 @@ source "digitalocean" "supabase-hcp" {
 }
 
 build {
-  # Use the HCP source if a base image exists, otherwise use the standard source
-  sources = [
-    "source.digitalocean.supabase-hcp"
-  ]
+  sources = ["source.digitalocean.supabase"]
 
   # HCP Packer registry configuration
   hcp_packer_registry {
     bucket_name = var.hcp_bucket_name
     description = "Supabase image for DigitalOcean droplets"
-    bucket_labels = {
-      "deployer"    = var.github_actor
-      "os"          = var.droplet_image
-      "region"      = var.region
-      "environment" = var.environment
-      "base-image"  = data.hcp-packer-version.base.fingerprint
-    }
+
     build_labels = {
       "build-time"   = timestamp()
       "build-source" = "packer"
       "created-by"   = var.github_actor
+      "deployer"     = var.github_actor
+      "os"           = var.droplet_image
+      "region"       = var.region
+      "environment"  = var.environment
+      "base-image"   = data.hcp-packer-version.ubuntu.id
     }
   }
 

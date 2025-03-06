@@ -1,0 +1,50 @@
+name: Build Packer Image with HCP Packer
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "packer/**"
+
+jobs:
+  build:
+    name: Build Supabase Packer Image with HCP
+    runs-on: ubuntu-latest
+    env:
+      HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+      HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
+      HCP_PROJECT_ID: ${{ secrets.HCP_PROJECT_ID }}
+      DO_REGION: ${{ vars.DO_REGION || 'sfo3' }}
+      DO_DROPLET_IMAGE: ${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-10-x64' }}
+      DO_DROPLET_SIZE: ${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}
+      DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
+      HCP_BUCKET_NAME: ${{ vars.HCP_BUCKET_NAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "1.9.4" # Use a specific version or 'latest'
+
+      - name: Initialize Packer
+        working-directory: ./packer
+        run: packer init .
+
+      - name: Build and publish image with HCP Packer
+        working-directory: ./packer
+        env:
+          PACKER_LOG: 1
+          HCP_PACKER_BUCKET_NAME: ${{ env.HCP_BUCKET_NAME }}
+        run: |
+          # All variables are loaded from supabase.auto.pkrvars.hcl
+          packer build .
+
+      - name: Display HCP Packer build information
+        run: |
+          echo "Build complete. Image has been published to HCP Packer."
+          echo "Project ID: ${{ secrets.HCP_PROJECT_ID }}"
+          echo "Bucket: ${{ env.HCP_BUCKET_NAME }}"

@@ -20,12 +20,13 @@ variable "do_token" {
 variable "region" {
   description = "The region where the Droplet will be created."
   type        = string
+  default     = "sfo3"
 }
 
 variable "droplet_image" {
   description = "The Droplet image ID or slug. This could be either image ID or droplet snapshot ID."
   type        = string
-  default     = "ubuntu-22-04-x64"
+  default     = "ubuntu-22-10-x64"
 }
 
 variable "droplet_size" {

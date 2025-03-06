@@ -33,12 +33,25 @@ jobs:
       - name: Initialize Packer
         working-directory: ./packer
         run: packer init .
+        
+      - name: Create variables file
+        run: |
+          cat > packer/supabase.auto.pkrvars.hcl << EOF
+          do_token = "${{ secrets.DO_API_TOKEN }}"
+          region = "${{ vars.DO_REGION }}"
+          droplet_image = "${{ vars.DO_DROPLET_IMAGE }}"
+          droplet_size = "${{ vars.DO_DROPLET_SIZE }}"
+          tags = ["service=supabase", "deployedby=github-actions", "org=bldx", "env=dev"]
+          EOF
+          
+          # Mask sensitive content in logs
+          cat packer/supabase.auto.pkrvars.hcl | grep -v do_token
 
       - name: Build and publish image with HCP Packer
         working-directory: ./packer
         env:
           PACKER_LOG: 1
-          HCP_PACKER_BUCKET_NAME: ${{ env.HCP_BUCKET_NAME }}
+          HCP_PACKER_BUCKET_NAME: ${{ vars.HCP_BUCKET_NAME }}
         run: |
           # All variables are loaded from supabase.auto.pkrvars.hcl
           packer build .
@@ -47,4 +60,4 @@ jobs:
         run: |
           echo "Build complete. Image has been published to HCP Packer."
           echo "Project ID: ${{ secrets.HCP_PROJECT_ID }}"
-          echo "Bucket: ${{ env.HCP_BUCKET_NAME }}"
+          echo "Bucket: ${{ vars.HCP_BUCKET_NAME }}"

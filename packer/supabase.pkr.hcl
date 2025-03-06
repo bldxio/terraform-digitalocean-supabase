@@ -7,6 +7,10 @@ packer {
       source  = "github.com/digitalocean/digitalocean"
     }
   }
+  
+  hcp_packer {
+    bucket_name = "${env("HCP_PACKER_BUCKET_NAME")}"
+  }
 }
 
 # Set the variable value in the supabase.auto.pkvars.hcl file
@@ -59,6 +63,20 @@ source "digitalocean" "supabase" {
 
 build {
   sources = ["source.digitalocean.supabase"]
+  
+  hcp_packer_registry {
+    bucket_labels = {
+      "owner"          = "bldx"
+      "os"             = "ubuntu"
+      "ubuntu-version" = "22.04"
+      "region"         = "${var.region}"
+    }
+    
+    build_labels = {
+      "build-time"   = "${local.timestamp}"
+      "build-source" = "github-actions"
+    }
+  }
 
   provisioner "file" {
     source      = "./supabase"

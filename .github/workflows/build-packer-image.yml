@@ -51,7 +51,9 @@ jobs:
         working-directory: ./packer
         env:
           PACKER_LOG: 1
+          # HCP Packer variables
           HCP_PACKER_BUCKET_NAME: ${{ vars.HCP_BUCKET_NAME }}
+          HCP_PACKER_REGISTRY_ENABLED: "true"
         run: |
           # Use our explicitly created variables file
           packer build -var-file=supabase.auto.pkrvars.hcl .

@@ -40,7 +40,7 @@ terraform output jwt_service_role
 The repository includes a GitHub Actions workflow for automatically building Packer images:
 
 - Triggers when changes are pushed to the `dev` branch in the `packer/` directory
-- Uses HashiCorp Cloud Platform (HCP) Packer to store image metadata
+- Uses HashiCorp Cloud Platform (HCP) Packer to store image metadata and register images in the HCP registry
 - Dynamically generates a variables file during workflow execution
 - Required environment variables:
   - GitHub Secrets:

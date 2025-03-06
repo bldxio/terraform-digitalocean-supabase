@@ -89,20 +89,9 @@ locals {
   ]
 }
 
-# Define two source blocks: one for building from a standard DO image,
-# and another for building from an HCP Packer registry image
-source "digitalocean" "supabase-standard" {
-  image         = var.droplet_image
-  region        = var.region
-  size          = var.droplet_size
-  snapshot_name = local.snapshot_name
-  tags          = local.tags
-  ssh_username  = "root"
-  api_token     = var.do_token
-}
-
+# Building from an HCP Packer registry image
 source "digitalocean" "supabase-hcp" {
-  image         = data.hcp-packer-artifact.base-sfo3.external_identifier
+  image         = data.hcp-packer-artifact.ubuntu-sfo3.external_identifier
   region        = var.region
   size          = var.droplet_size
   snapshot_name = local.snapshot_name

@@ -41,18 +41,6 @@ variable "hcp_bucket_name" {
   default     = "supabase"
 }
 
-variable "base_bucket_name" {
-  description = "The name of the HCP Packer bucket where base images are stored."
-  type        = string
-  default     = "base-ubuntu"
-}
-
-variable "hcp_channel" {
-  description = "The HCP Packer channel to use."
-  type        = string
-  default     = "dev"
-}
-
 variable "hcp_client_id" {
   description = "The HCP client ID for authentication."
   type        = string
@@ -78,14 +66,14 @@ variable "environment" {
 }
 
 # Data sources to fetch the latest base image from HCP Packer registry
-data "hcp-packer-version" "base" {
-  bucket_name  = var.base_bucket_name
-  channel_name = var.hcp_channel
+data "hcp-packer-version" "ubuntu" {
+  bucket_name  = var.hcp_bucket_name
+  channel_name = var.environment
 }
 
-data "hcp-packer-artifact" "base-sfo3" {
-  bucket_name         = var.base_bucket_name
-  version_fingerprint = data.hcp-packer-version.base.fingerprint
+data "hcp-packer-artifact" "ubuntu-sfo3" {
+  bucket_name         = hcp_bucket_name
+  version_fingerprint = data.hcp-packer-version.ubuntu.fingerprint
   platform            = "digitalocean"
   region              = var.region
 }

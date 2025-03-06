@@ -1,13 +1,12 @@
 packer {
   required_version = "~> 1.9.1"
-
   required_plugins {
     digitalocean = {
       version = "1.1.1"
       source  = "github.com/digitalocean/digitalocean"
     }
     hcp = {
-      version = ">= 0.5.0"
+      version = "~> 0.1"
       source  = "github.com/hashicorp/hcp"
     }
   }
@@ -46,6 +45,18 @@ variable "hcp_bucket_name" {
   default     = "supabase"
 }
 
+variable "base_bucket_name" {
+  description = "The name of the HCP Packer bucket where base images are stored."
+  type        = string
+  default     = "base-ubuntu"
+}
+
+variable "hcp_channel" {
+  description = "The HCP Packer channel to use."
+  type        = string
+  default     = "dev"
+}
+
 variable "hcp_client_id" {
   description = "The HCP client ID for authentication."
   type        = string
@@ -58,19 +69,45 @@ variable "hcp_client_secret" {
   sensitive   = true
 }
 
+variable "github_actor" {
+  description = "GitHub username of the person who triggered the workflow."
+  type        = string
+  default     = "unknown"
+}
+
+variable "environment" {
+  description = "Environment name derived from the branch (dev, prd, etc.)."
+  type        = string
+  default     = "dev"
+}
+
+# Data sources to fetch the latest base image from HCP Packer registry
+data "hcp-packer-version" "base" {
+  bucket_name  = var.base_bucket_name
+  channel_name = var.hcp_channel
+}
+
+data "hcp-packer-artifact" "base-sfo3" {
+  bucket_name         = var.base_bucket_name
+  version_fingerprint = data.hcp-packer-version.base.fingerprint
+  platform            = "digitalocean"
+  region              = var.region
+}
+
 locals {
-  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
-
-  snapshot_name = "supabase-${local.timestamp}"
-
+  timestamp     = regex_replace(timestamp(), "[- TZ:]", "")
+  snapshot_name = "supabase-${var.environment}-${local.timestamp}"
   tags = [
     "supabase",
     "digitalocean",
-    "packer"
+    "packer",
+    "env:${var.environment}"
   ]
 }
 
-source "digitalocean" "supabase" {
+# Define two source blocks: one for building from a standard DO image,
+# and another for building from an HCP Packer registry image
+source "digitalocean" "supabase-standard" {
   image         = var.droplet_image
   region        = var.region
   size          = var.droplet_size
@@ -80,24 +117,37 @@ source "digitalocean" "supabase" {
   api_token     = var.do_token
 }
 
+source "digitalocean" "supabase-hcp" {
+  image         = data.hcp-packer-artifact.base-sfo3.external_identifier
+  region        = var.region
+  size          = var.droplet_size
+  snapshot_name = local.snapshot_name
+  tags          = local.tags
+  ssh_username  = "root"
+  api_token     = var.do_token
+}
+
 build {
-  sources = ["source.digitalocean.supabase"]
+  # Use the HCP source if a base image exists, otherwise use the standard source
+  sources = [
+    "source.digitalocean.supabase-hcp"
+  ]
 
   # HCP Packer registry configuration
   hcp_packer_registry {
     bucket_name = var.hcp_bucket_name
     description = "Supabase image for DigitalOcean droplets"
-
     bucket_labels = {
-      "owner"          = "nathan@bldx.ai"
-      "os"             = "ubuntu"
-      "ubuntu-version" = "22.04"
-      "region"         = var.region
+      "deployer"    = var.github_actor
+      "os"          = var.droplet_image
+      "region"      = var.region
+      "environment" = var.environment
+      "base-image"  = data.hcp-packer-version.base.fingerprint
     }
-
     build_labels = {
       "build-time"   = timestamp()
       "build-source" = "packer"
+      "created-by"   = var.github_actor
     }
   }
 

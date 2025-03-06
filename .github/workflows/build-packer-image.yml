@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - main
     paths:
       - "packer/**"
 
@@ -24,6 +25,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        
+      - name: Set environment variable based on branch
+        id: set-env
+        run: |
+          if [[ "${GITHUB_REF#refs/heads/}" == "main" ]]; then
+            echo "DEPLOY_ENV=prd" >> $GITHUB_ENV
+            echo "environment=prd" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_ENV=dev" >> $GITHUB_ENV
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+          echo "Building for environment: ${{ env.DEPLOY_ENV }}"
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
@@ -44,6 +57,8 @@ jobs:
           hcp_bucket_name = "${{ vars.HCP_BUCKET_NAME }}"
           hcp_client_id = "${{ secrets.HCP_CLIENT_ID }}"
           hcp_client_secret = "${{ secrets.HCP_CLIENT_SECRET }}"
+          github_actor = "${{ github.actor }}"
+          environment = "${{ env.DEPLOY_ENV }}"
           EOF
 
           # Mask sensitive content in logs

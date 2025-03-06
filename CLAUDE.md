@@ -50,7 +50,7 @@ The repository includes a GitHub Actions workflow for automatically building Pac
     - `DO_API_TOKEN` - DigitalOcean API token
   - GitHub Environment Variables:
     - `DO_REGION` - DigitalOcean region (defaults to 'sfo3')
-    - `DO_DROPLET_IMAGE` - Base image (defaults to 'ubuntu-22-10-x64')
+    - `DO_DROPLET_IMAGE` - Base image (defaults to 'ubuntu-22-04-x64')
     - `DO_DROPLET_SIZE` - Droplet size (defaults to 's-2vcpu-4gb')
     - `HCP_BUCKET_NAME` - HCP Packer bucket name
 

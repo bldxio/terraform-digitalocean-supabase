@@ -16,7 +16,7 @@ jobs:
       HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
       HCP_PROJECT_ID: ${{ secrets.HCP_PROJECT_ID }}
       DO_REGION: ${{ vars.DO_REGION || 'sfo3' }}
-      DO_DROPLET_IMAGE: ${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-10-x64' }}
+      DO_DROPLET_IMAGE: ${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-04-x64' }}
       DO_DROPLET_SIZE: ${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}
       DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
       HCP_BUCKET_NAME: ${{ vars.HCP_BUCKET_NAME }}
@@ -39,7 +39,7 @@ jobs:
           cat > packer/supabase.auto.pkrvars.hcl << EOF
           do_token = "${{ secrets.DO_API_TOKEN }}"
           region = "${{ vars.DO_REGION || 'sfo3' }}"
-          droplet_image = "${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-10-x64' }}"
+          droplet_image = "${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-04-x64' }}"
           droplet_size = "${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}"
           tags = ["service=supabase", "deployedby=github-actions", "org=bldx", "env=dev"]
           EOF

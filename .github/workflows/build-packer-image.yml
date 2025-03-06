@@ -15,7 +15,6 @@ jobs:
     env:
       HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
       HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
-      HCP_PROJECT_ID: ${{ secrets.HCP_PROJECT_ID }}
       DO_REGION: ${{ vars.DO_REGION || 'sfo3' }}
       DO_DROPLET_IMAGE: ${{ vars.DO_DROPLET_IMAGE || 'ubuntu-22-04-x64' }}
       DO_DROPLET_SIZE: ${{ vars.DO_DROPLET_SIZE || 's-2vcpu-4gb' }}
@@ -25,7 +24,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Set environment variable based on branch
         id: set-env
         run: |
@@ -75,5 +74,4 @@ jobs:
       - name: Display HCP Packer build information
         run: |
           echo "Build complete. Image has been published to HCP Packer."
-          echo "Project ID: ${{ secrets.HCP_PROJECT_ID }}"
           echo "Bucket: ${{ vars.HCP_BUCKET_NAME }}"

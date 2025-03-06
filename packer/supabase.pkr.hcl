@@ -5,10 +5,6 @@ packer {
       version = "1.1.1"
       source  = "github.com/digitalocean/digitalocean"
     }
-    hcp = {
-      version = "~> 0.1"
-      source  = "github.com/hashicorp/hcp-packer" # This is the correct source
-    }
   }
 }
 

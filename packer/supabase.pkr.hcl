@@ -92,7 +92,7 @@ build {
 
   # HCP Packer registry configuration
   hcp_packer_registry {
-    bucket_name = var.hcp_bucket_name
+    bucket_name = "${var.hcp_bucket_name}-${var.environment}"
     description = "Supabase image for DigitalOcean droplets"
 
     build_labels = {

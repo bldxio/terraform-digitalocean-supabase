@@ -14,12 +14,13 @@ jobs:
     environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
     env:
       PACKER_LOG: 1
-      TF_VAR_region: ${{vars.DO_REGION}}
-      TF_VAR_droplet_image: ${{vars.DO_DROPLET_IMAGE}}
-      TF_VAR_droplet_size: ${{vars.DO_DROPLET_SIZE}}
-      TF_VAR_hcp_bucket_name: "${{vars.HCP_BUCKET_NAME}}-${{vars.DEPLOY_ENV}}"
-      TF_VAR_github_actor: ${{github.actor}}
-      TF_VAR_environment: ${{vars.DEPLOY_ENV}}
+      PKR_VAR_do_token: ${{secrets.DO_API_TOKEN}}
+      PKR_VAR_region: ${{vars.DO_REGION}}
+      PKR_VAR_droplet_image: ${{vars.DO_DROPLET_IMAGE}}
+      PKR_VAR_droplet_size: ${{vars.DO_DROPLET_SIZE}}
+      PKR_VAR_hcp_bucket_name: "${{vars.HCP_BUCKET_NAME}}"
+      PKR_VAR_github_actor: ${{github.actor}}
+      PKR_VAR_environment: ${{vars.DEPLOY_ENV}}
       # HCP Packer authentication
       HCP_CLIENT_ID: ${{secrets.HCP_CLIENT_ID}}
       HCP_CLIENT_SECRET: ${{secrets.HCP_CLIENT_SECRET}}
@@ -37,7 +38,6 @@ jobs:
         working-directory: ./packer
         run: |
           packer build \
-            -var do_token="${{secrets.DO_API_TOKEN}}" \
             -var hcp_client_id="${{secrets.HCP_CLIENT_ID}}" \
             -var hcp_client_secret="${{secrets.HCP_CLIENT_SECRET}}" \
             .

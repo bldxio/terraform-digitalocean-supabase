@@ -1,5 +1,11 @@
-data "digitalocean_domain" "this" {
-  name = var.domain
+# data "digitalocean_domain" "this" {
+#   name = var.domain
+# }
+
+data "cloudflare_zones" "this" {
+  filter {
+    name = var.domain
+  }
 }
 
 # Wait for the Volume to mount to the Droplet to ensure "Resource Busy" error is not encountered
@@ -19,12 +25,20 @@ resource "digitalocean_reserved_ip" "this" {
   ]
 }
 
-resource "digitalocean_record" "a_record" {
-  domain = var.domain
-  type   = "A"
-  name   = "supabase"
-  value  = digitalocean_reserved_ip.this.ip_address
+resource "cloudflare_record" "a_record" {
+  zone_id = var.cloudflare_zone_id
+  type    = "A"
+  name    = "supabase"
+  value   = digitalocean_reserved_ip.this.ip_address
 }
+
+# resource "cloudflare_record" "a_record" {
+#   zone_id = data.cloudflare_zones.this.zones[0].id
+#   name    = "supabase"
+#   value   = digitalocean_reserved_ip.this.ip_address
+#   type    = "A"
+#   ttl     = 1
+# }
 
 resource "digitalocean_firewall" "this" {
   name        = "supabase"

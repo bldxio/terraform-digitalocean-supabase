@@ -133,7 +133,13 @@ locals {
     }
   )
 
-  do_ini = templatefile("${path.module}/files/digitalocean.ini.tftpl", { TF_DIGITALOCEAN_TOKEN = "${var.do_token}" })
+  # do_ini = templatefile("${path.module}/files/digitalocean.ini.tftpl", { TF_DIGITALOCEAN_TOKEN = "${var.do_token}" })
+
+  cloudflare_ini = templatefile("${path.module}/files/cloudflare.ini.tftpl",
+    {
+      TF_CLOUDFLARE_API_TOKEN = "${var.cloudflare_api_token}"
+    }
+  )
 
   htpasswd = templatefile("${path.module}/files/.htpasswd.tftpl",
     {
@@ -161,11 +167,11 @@ locals {
       content     = base64encode("${local.env_file}")
     },
     {
-      path        = "/root/supabase/digitalocean.ini"
+      path        = "/root/supabase/cloudflare.ini"
       permissions = "0600"
       owner       = "root:root"
       encoding    = "b64"
-      content     = base64encode("${local.do_ini}")
+      content     = base64encode("${local.cloudflare_ini}")
     },
     {
       path        = "/root/supabase/.htpasswd"

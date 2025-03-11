@@ -1,12 +1,12 @@
 ############
 # IMP. The below token should not be stored in version control
 ############
-do_token = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-## REQUIRED ##
-region = "ams3"
-
-## OPTIONAL ##
-# droplet_image = ""
-# droplet_size  = ""
-# tags          = [""]
+do_token          = ""
+do_region         = ""
+do_droplet_image  = ""
+do_droplet_size   = ""
+hcp_bucket_name   = ""
+hcp_client_id     = ""
+hcp_client_secret = ""
+github_actor      = ""
+deploy_env        = ""

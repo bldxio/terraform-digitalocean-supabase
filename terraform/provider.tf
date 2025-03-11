@@ -30,6 +30,10 @@ terraform {
       source  = "hashicorp/time"
       version = "0.9.1"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.33.0"
+    }
   }
 }
 
@@ -41,6 +45,11 @@ provider "digitalocean" {
 
 provider "sendgrid" {
   api_key = var.sendgrid_api
+}
+
+provider "cloudflare" {
+  # email     = var.cloudflare_email
+  api_token = var.cloudflare_api_token
 }
 
 ############

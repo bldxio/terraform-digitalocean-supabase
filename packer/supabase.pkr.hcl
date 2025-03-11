@@ -62,7 +62,6 @@ variable "github_actor" {
 variable "environment" {
   description = "Environment name derived from the branch."
   type        = string
-  default     = "dev"
 }
 
 locals {

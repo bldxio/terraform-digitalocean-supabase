@@ -12,7 +12,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.4.3"
+      version = ">= 3.6.3"
     }
     jwt = {
       source  = "camptocamp/jwt"
@@ -57,11 +57,11 @@ provider "cloudflare" {
 ############
 
 # IMP. If using local state file management make sure you DO NOT upload your state file in version control as this stores sensitive data
-terraform {
-  backend "local" {
-    path = "./terraform.tfstate"
-  }
-}
+# terraform {
+#   backend "local" {
+#     path = "./terraform.tfstate"
+#   }
+# }
 
 # # If you decide to store your state file within Terraform Cloud
 # # - Comment the local backend block above

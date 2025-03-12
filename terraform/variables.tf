@@ -57,6 +57,11 @@ variable "region" {
   type        = string
 }
 
+variable "environment" {
+  description = "The environment where the Droplet will be created."
+  type        = string
+}
+
 variable "domain" {
   description = "Domain name where the Supabase instance is accessible. The final domain will be of the format `supabase.example.com`"
   type        = string

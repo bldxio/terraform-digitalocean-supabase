@@ -1,7 +1,8 @@
-data "digitalocean_droplet_snapshot" "supabase" {
-  name_regex  = "^supabase-${var.environment}-20\\d{12}$"
-  region      = var.region
-  most_recent = true
+data "hcp_packer_artifact" "supabase" {
+  bucket_name  = "supabase-${var.environment}"
+  channel_name = "latest"
+  platform     = "digitalocean"
+  region       = "sfo3"
 }
 
 data "cloudinit_config" "this" {
@@ -30,7 +31,7 @@ data "cloudinit_config" "this" {
 }
 
 resource "digitalocean_droplet" "this" {
-  image      = data.digitalocean_droplet_snapshot.supabase.id
+  image      = data.hcp_packer_artifact.supabase.id
   name       = "supabase-droplet"
   region     = var.region
   size       = var.droplet_size

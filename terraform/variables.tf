@@ -106,13 +106,11 @@ variable "smtp_country" {
 variable "droplet_image" {
   description = "The Droplet image ID or slug. This could be either image ID or droplet snapshot ID."
   type        = string
-  default     = "ubuntu-22-10-x64"
 }
 
 variable "droplet_size" {
   description = "The unique slug that identifies the type of Droplet."
   type        = string
-  default     = "s-1vcpu-2gb"
 }
 
 variable "droplet_backups" {
@@ -142,7 +140,6 @@ variable "tags" {
 variable "volume_size" {
   description = "The size of the block storage volume in GiB. If updated, can only be expanded."
   type        = number
-  default     = 25
 }
 
 variable "enable_ssh" {

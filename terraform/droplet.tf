@@ -31,7 +31,7 @@ data "cloudinit_config" "this" {
 }
 
 resource "digitalocean_droplet" "this" {
-  image      = data.hcp_packer_artifact.supabase.id
+  image      = data.hcp_packer_artifact.supabase.external_identifier
   name       = "supabase-droplet"
   region     = var.region
   size       = var.droplet_size

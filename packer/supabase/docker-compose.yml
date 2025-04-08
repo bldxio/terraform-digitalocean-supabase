@@ -6,7 +6,7 @@ version: "3.8"
 
 services:
   swag:
-    image: lscr.io/linuxserver/swag:2.2.0
+    image: lscr.io/linuxserver/swag:4.0.0
     container_name: swag
     cap_add:
       - NET_ADMIN
@@ -19,6 +19,8 @@ services:
       - SUBDOMAINS=supabase
       - DNSPLUGIN=cloudflare
       - ONLY_SUBDOMAINS=true
+      # to avoid rate limits while debugging. This needs to be removed before going live to production.
+      - STAGING=true
     volumes:
       - ./supabase.subdomain.conf:/config/nginx/proxy-confs/supabase.subdomain.conf
       - ./cloudflare.ini:/config/dns-conf/cloudflare.ini
@@ -30,7 +32,7 @@ services:
 
   studio:
     container_name: supabase-studio
-    image: supabase/studio:20230622-d8395eb
+    image: supabase/studio:20250317-6955350
     restart: unless-stopped
     healthcheck:
       test:
@@ -78,7 +80,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.62.1
+    image: supabase/gotrue:v2.170.0
     depends_on:
       db:
         condition: service_healthy
@@ -128,6 +130,7 @@ services:
       GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${MAILER_URLPATHS_CONFIRMATION}
       GOTRUE_MAILER_URLPATHS_RECOVERY: ${MAILER_URLPATHS_RECOVERY}
       GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
+      GOTRUE_MAILER_PROVIDER: sendgrid
 
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
@@ -135,7 +138,7 @@ services:
 
   rest:
     container_name: supabase-rest
-    image: postgrest/postgrest:v10.1.2
+    image: postgrest/postgrest:v12.2.8
     depends_on:
       db:
         condition: service_healthy
@@ -149,7 +152,7 @@ services:
 
   realtime:
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.10.1
+    image: supabase/realtime:v2.34.43
     depends_on:
       db:
         condition: service_healthy
@@ -180,7 +183,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v0.40.4
+    image: supabase/storage-api:v1.19.3
     depends_on:
       db:
         condition: service_healthy
@@ -223,7 +226,7 @@ services:
 
   imgproxy:
     container_name: supabase-imgproxy
-    image: darthsim/imgproxy:v3.13
+    image: darthsim/imgproxy:v3.8.0
     healthcheck:
       test: ["CMD", "imgproxy", "health"]
       timeout: 5s
@@ -239,7 +242,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.66.3
+    image: supabase/postgres-meta:v0.87.1
     depends_on:
       db:
         condition: service_healthy
@@ -254,14 +257,14 @@ services:
 
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.5.2
+    image: supabase/edge-runtime:v1.67.4
     restart: unless-stopped
     environment:
       JWT_SECRET: ${JWT_SECRET}
       SUPABASE_URL: http://kong:8000
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
-      SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@{POSTGRES_DB}:${POSTGRES_PORT}/${POSTGRES_DB}
+      SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_DB}:${POSTGRES_PORT}/${POSTGRES_DB}
       # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
     ports:
@@ -275,7 +278,7 @@ services:
 
   db:
     container_name: supabase-db
-    image: supabase/postgres:15.1.0.90
+    image: supabase/postgres:15.8.1.060
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s

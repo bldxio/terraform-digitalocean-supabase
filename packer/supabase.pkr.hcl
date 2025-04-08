@@ -22,6 +22,11 @@ variable "region" {
   default     = "sfo3"
 }
 
+variable "domain" {
+  description = "The domain of the supabase instance"
+  type        = string
+}
+
 variable "droplet_image" {
   description = "The Droplet image ID or slug."
   type        = string

@@ -20,7 +20,7 @@ jobs:
       PKR_VAR_droplet_size: ${{vars.DO_DROPLET_SIZE}}
       PKR_VAR_hcp_bucket_name: "${{vars.HCP_BUCKET_NAME}}"
       PKR_VAR_github_actor: ${{github.actor}}
-      PKR_VAR_environment: ${{vars.DEPLOY_ENV}}
+      PKR_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
       # HCP Packer authentication
       HCP_CLIENT_ID: ${{secrets.HCP_CLIENT_ID}}
       HCP_CLIENT_SECRET: ${{secrets.HCP_CLIENT_SECRET}}

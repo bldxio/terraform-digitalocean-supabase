@@ -1,6 +1,6 @@
 resource "random_id" "bucket" {
   byte_length = 8
-  prefix      = "supabase-"
+  prefix      = "supabase-${var.environment}"
 }
 
 

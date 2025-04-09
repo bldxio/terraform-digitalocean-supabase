@@ -172,6 +172,29 @@ variable "spaces_restrict_ip" {
   default     = false
 }
 
+variable "tailscale_api_key" {
+  description = "Tailscale API key for managing resources"
+  type        = string
+  sensitive   = true
+}
+
+variable "tailscale_tailnet" {
+  description = "Tailscale telnet domain for managing resources"
+  type        = string
+}
+
+variable "tailscale_subnet_cidr" {
+  description = "CIDR range of your Tailscale network to allow studio access (e.g., '100.64.0.0/10')"
+  type        = string
+  default     = "100.64.0.0/10" # Default Tailscale CIDR range
+}
+
+variable "studio_port" {
+  description = "Port for the Supabase Studio"
+  type        = number
+  default     = 3000
+}
+
 variable "studio_org" {
   description = "Organization for Studio Configuration."
   type        = string

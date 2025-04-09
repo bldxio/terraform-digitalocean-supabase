@@ -58,3 +58,13 @@ output "bucket" {
   description = "The unique name of the bucket in the format `supabase-ab12cd34ef56gh78`."
   value       = digitalocean_spaces_bucket.this.name
 }
+
+output "tailscale_key_expiry" {
+  description = "The expiry date of the Tailscale auth key"
+  value       = timeadd(timestamp(), "${tailscale_tailnet_key.supabase.expiry}s")
+}
+
+output "studio_tailscale_note" {
+  description = "Information about accessing Studio via Tailscale"
+  value       = "The Supabase Studio is accessible via Tailscale through your Tailscale network. Connect to Tailscale and access the studio using the Tailscale IP of the droplet on port ${var.studio_port}."
+}

@@ -62,9 +62,31 @@ resource "digitalocean_firewall" "this" {
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
+  # Allow HTTPS access - API endpoints will still be accessible but Studio UI is restricted by nginx config
   inbound_rule {
     protocol         = "tcp"
     port_range       = "443"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+  
+  # Allow Tailscale subnet to access the studio port
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = var.studio_port
+    source_addresses = [var.tailscale_subnet_cidr]
+  }
+  
+  # Allow Tailscale subnet to access HTTP port 80
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "80"
+    source_addresses = [var.tailscale_subnet_cidr]
+  }
+  
+  # Allow UDP for Tailscale connections (port 41641)
+  inbound_rule {
+    protocol         = "udp"
+    port_range       = "41641"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 

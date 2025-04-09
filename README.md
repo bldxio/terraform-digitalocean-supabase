@@ -125,8 +125,72 @@ terraform output jwt
 terraform output jwt_anon
 terraform output jwt_service_role
 
+## Show Tailscale access information
+terraform output studio_tailscale_note
 ```
 
-Take a **5-10 min** break and after that point your browser to `supabase.${your-domain}`. When the pop-up asking for your auth details appears enter your provided username and the generated htpasswd.
+## Accessing Supabase Studio via Tailscale
+
+The Supabase Studio is configured to only be accessible through your Tailscale network for enhanced security. This is managed using the Terraform Tailscale provider, which automatically:
+
+1. Creates an ephemeral auth key for your Droplet
+2. Sets up appropriate ACLs to only allow Tailscale users to access the Studio
+3. Configures the Supabase Studio to bind to the Tailscale IP
+4. Restricts web access to only Tailscale IP addresses (100.64.0.0/10 range)
+
+Follow these steps to access your Studio:
+
+1. Make sure you're connected to your Tailscale network
+2. In your browser, navigate to https://supabase.yourdomain.com
+   - The Studio UI will only be accessible from Tailscale IP addresses
+   - Nginx is configured to reject all other connection attempts
+3. When prompted for authentication, enter your provided username and the generated htpasswd
+
+**Important**: If you're having issues with connectivity, ensure that:
+- You are connected to your Tailscale network before trying to access the Studio
+- You have proper ACL permissions in your Tailscale admin console
+- Your Tailscale client is properly connected
+- The Supabase droplet has successfully joined your Tailscale network
+
+### Tailscale Configuration Details
+
+This deployment uses the following Tailscale configuration:
+
+1. **Tailscale Provider**: Manages Tailscale resources via the Tailscale API
+2. **Tailnet Auth Key**: Automatically generated ephemeral auth key for the droplet
+3. **ACL Rules**: Studio access is restricted to only Tailscale network members
+4. **Studio Binding**: The Studio service is configured to only bind to the Tailscale IP address
+
+### Troubleshooting Tailscale Connectivity
+
+If your Droplet isn't connecting to Tailscale or you can't access the studio:
+
+1. **Check Tailscale logs on the server**:
+   ```bash
+   ssh root@<your-droplet-ip>
+   systemctl status tailscaled
+   journalctl -u tailscaled
+   ```
+
+2. **Verify Tailscale API key and tailnet**:
+   - Ensure your Tailscale API key has the correct permissions
+   - Verify your tailnet name is correct in your terraform.tfvars file
+
+3. **Check ACL rules in Tailscale admin console**:
+   - Verify that your user account has access to tagged devices
+   - Check that the `tag:supabase` tag is properly applied
+
+4. **Verify Studio binding**:
+   ```bash
+   ssh root@<your-droplet-ip>
+   docker ps | grep studio
+   docker logs supabase-studio
+   ```
+
+5. **Check firewall settings**:
+   - The Terraform configuration automatically opens UDP port 41641 for Tailscale connectivity
+   - Verify this rule exists in your DigitalOcean firewall
+
+Take a **5-10 min** break after applying Terraform to allow all services to start properly. If you're not connected to Tailscale, you won't be able to access the Studio - this is by design for enhanced security.
 
 Enjoy and Happy creating :)

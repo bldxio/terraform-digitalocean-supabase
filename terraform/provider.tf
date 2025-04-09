@@ -34,6 +34,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "4.33.0"
     }
+    tailscale = {
+      source  = "tailscale/tailscale"
+      version = "0.18.0"
+    }
   }
 }
 
@@ -50,6 +54,11 @@ provider "sendgrid" {
 provider "cloudflare" {
   # email     = var.cloudflare_email
   api_token = var.cloudflare_api_token
+}
+
+provider "tailscale" {
+  api_key = var.tailscale_api_key
+  tailnet = var.tailscale_tailnet
 }
 
 ############

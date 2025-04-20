@@ -65,6 +65,31 @@ module "supabase_prod" {
 }
 ```
 
+### Assigning Resources to an Existing Project
+
+If your DigitalOcean projects are managed outside of Terraform, you can assign the created resources to an existing project using the `project_id` variable:
+
+```hcl
+module "supabase_prod" {
+  source = "github.com/digitalocean/terraform-digitalocean-supabase"
+  
+  environment = "prod"
+  project_id  = "your-project-id-here"  # Add this line to assign resources to a specific project
+  # Other variables...
+}
+```
+
+To get your project ID, you can use:
+```bash
+# List all projects
+doctl projects list
+
+# Or via the DigitalOcean API
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $YOUR_API_TOKEN" "https://api.digitalocean.com/v2/projects"
+```
+
+Without providing a `project_id`, resources will be assigned to your DigitalOcean default project.
+
 ## Pre-requisites
 
 - [DigitalOcean](https://cloud.digitalocean.com/login) account (Haven't got one? Start your [free trail](https://try.digitalocean.com/freetrialoffer/) now and grab $200 in credits.);

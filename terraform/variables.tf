@@ -67,6 +67,12 @@ variable "domain" {
   type        = string
 }
 
+variable "project_id" {
+  description = "The ID of the DigitalOcean project to assign resources to. If not provided, resources will be assigned to the default project."
+  type        = string
+  default     = ""
+}
+
 variable "site_url" {
   description = "Domain name of your application in the format."
   type        = string

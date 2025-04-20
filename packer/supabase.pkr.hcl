@@ -110,9 +110,18 @@ build {
     }
   }
 
+  # Copy all files from supabase directory first
   provisioner "file" {
     source      = "./supabase"
     destination = "/root"
+  }
+
+  # Process the template and overwrite the existing file
+  provisioner "file" {
+    content     = templatefile("./supabase/supabase.subdomain.conf.pkrtpl.hcl", {
+      environment = var.environment
+    })
+    destination = "/root/supabase/supabase.subdomain.conf"
   }
 
   provisioner "shell" {

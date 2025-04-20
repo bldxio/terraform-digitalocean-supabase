@@ -130,6 +130,7 @@ locals {
       TF_SMTP_SENDER_NAME         = "${local.smtp_sender_name}",
       TF_DEFAULT_ORGANIZATION     = "${var.studio_org}",
       TF_DEFAULT_PROJECT          = "${var.studio_project}",
+      TF_ENVIRONMENT              = "${var.environment}",
     }
   )
 

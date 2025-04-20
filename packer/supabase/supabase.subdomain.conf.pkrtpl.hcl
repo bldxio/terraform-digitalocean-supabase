@@ -1,4 +1,5 @@
 # Main server block for supabase.* domains (HTTPS)
+# Environment: ${environment}
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -18,6 +19,9 @@ server {
         # We still use basic auth as a second layer of security
         auth_basic "Restricted";
         auth_basic_user_file /config/nginx/.htpasswd;
+
+        # Add environment header for debugging/identification
+        add_header X-Environment "${environment}";
 
         include /config/nginx/proxy.conf;
         include /config/nginx/resolver.conf;
@@ -95,8 +99,8 @@ server {
     listen 80;
     listen [::]:80;
 
-    # Match both supastudio and the full Tailscale domain
-    server_name supastudio supastudio.tailb6eab3.ts.net;
+    # Match both supastudio and the full Tailscale domain with environment
+    server_name supastudio-${environment} supastudio-${environment}.tailb6eab3.ts.net;
 
     # Add debug logging for troubleshooting
     error_log /config/log/nginx/supastudio-error.log debug;
@@ -111,12 +115,12 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    # Match both supastudio and the full Tailscale domain
-    server_name supastudio supastudio.tailb6eab3.ts.net;
+    # Match both supastudio and the full Tailscale domain with environment
+    server_name supastudio-${environment} supastudio-${environment}.tailb6eab3.ts.net;
 
     # Use the Tailscale certificates from the mounted directory
-    ssl_certificate /config/tailscale_certs/supastudio.tailb6eab3.ts.net.crt;
-    ssl_certificate_key /config/tailscale_certs/supastudio.tailb6eab3.ts.net.key;
+    ssl_certificate /config/tailscale_certs/supastudio-${environment}.tailb6eab3.ts.net.crt;
+    ssl_certificate_key /config/tailscale_certs/supastudio-${environment}.tailb6eab3.ts.net.key;
     ssl_session_timeout 1d;
     ssl_session_cache shared:MozSSL:10m;
     ssl_session_tickets off;
@@ -150,6 +154,7 @@ server {
         # Debug headers
         add_header X-Debug-Remote-Addr $remote_addr;
         add_header X-Debug-Real-IP $realip_remote_addr;
+        add_header X-Environment "${environment}";
 
         include /config/nginx/proxy.conf;
         include /config/nginx/resolver.conf;

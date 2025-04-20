@@ -21,10 +21,14 @@ services:
       - ONLY_SUBDOMAINS=true
       # to avoid rate limits while debugging. This needs to be removed before going live to production.
       - STAGING=true
+      # Pass the environment variable to the container
+      - ENVIRONMENT=${ENVIRONMENT}
     volumes:
-      - ./supabase.subdomain.conf:/config/nginx/proxy-confs/supabase.subdomain.conf
       - ./cloudflare.ini:/config/dns-conf/cloudflare.ini
       - ./.htpasswd:/config/nginx/.htpasswd
+      - ./supabase.subdomain.conf:/config/nginx/proxy-confs/supabase.subdomain.conf
+      # Mount the Tailscale certificates directory
+      - /mnt/supabase_volume/tailscale_certs:/config/tailscale_certs:ro
     ports:
       - 443:443
       - 80:80
@@ -45,8 +49,9 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
-    ports:
-      - ${STUDIO_PORT}:3000/tcp
+    # No external ports - access only through SWAG/NGINX proxy
+    expose:
+      - "3000"
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -135,6 +140,13 @@ services:
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
       MFA_ENABLED: ${MFA_ENABLED}
+
+      # We will want to add Google SSO in the future, for now basic authentication over tailscale will suffice.
+      # # Google SSO Configuration
+      # GOTRUE_EXTERNAL_GOOGLE_ENABLED: "true"
+      # GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      # GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET}
+      # GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${SITE_URL}/auth/v1/callback
 
   rest:
     container_name: supabase-rest

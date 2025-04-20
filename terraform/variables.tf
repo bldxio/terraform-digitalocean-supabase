@@ -63,7 +63,7 @@ variable "environment" {
 }
 
 variable "domain" {
-  description = "Domain name where the Supabase instance is accessible. The final domain will be of the format `supabase.example.com`"
+  description = "Domain name where the Supabase instance is accessible. The final domain will be of the format `supastudio`"
   type        = string
 }
 

@@ -1,5 +1,7 @@
 # Supabase on DigitalOcean
 
+[![Environment-Aware: This module supports environment variables in the NGINX config](https://img.shields.io/badge/Environment--Aware-NGINX-blue)]()
+
 [Supabase](https://supabase.com/) is a backend-as-a-service platform built around the Postgres database, and is an Open Source alternative to Firebase. It can reduce time to market by providing a ready to use backend that includes a database with real time capabilities, authentication, object storage and edge functions. You can use Supabase as a service via their [managed offerings](https://supabase.com/pricing) or self-host it on your own server or on a cloud provider.
 
 ## Running Supabase on DigitalOcean
@@ -32,6 +34,36 @@ Supabase's auth component, `GoTrue`, requires the ability to send emails. As Dig
 ### Packer and Terraform
 
 At DigitalOcean [simplicity in all we DO](https://www.digitalocean.com/about) is one of our core values, and automating as much as possible of our processes enables us to achieve this. In this regard we will use [Packer](https://www.packer.io/) and [Terraform](https://www.terraform.io/) to automate the build and provision the resources.
+
+## Environment-Aware Configuration
+
+This module is designed to be environment-aware, allowing you to deploy Supabase across multiple environments (development, staging, production) while maintaining appropriate configurations for each. The module uses Packer's templating functionality to embed the environment variable into the NGINX configuration during image creation.
+
+Key features:
+- The `environment` variable is passed through all layers (Terraform → Packer → Docker Compose → NGINX)
+- Environment information is visible in HTTP headers (X-Environment)
+- Tailscale certificate handling is environment-aware
+- Different environments can be distinguished in monitoring and debugging
+
+### Customizing for Environments
+
+When deploying to different environments, simply set the `environment` variable in your Terraform configuration:
+
+```hcl
+module "supabase_dev" {
+  source = "github.com/digitalocean/terraform-digitalocean-supabase"
+  
+  environment = "dev"
+  # Other variables...
+}
+
+module "supabase_prod" {
+  source = "github.com/digitalocean/terraform-digitalocean-supabase"
+  
+  environment = "prod"
+  # Other variables...
+}
+```
 
 ## Pre-requisites
 

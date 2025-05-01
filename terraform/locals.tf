@@ -116,7 +116,7 @@ locals {
       TF_ANON_KEY                 = "${jwt_hashed_token.anon.token}",
       TF_SERVICE_ROLE_KEY         = "${jwt_hashed_token.service_role.token}",
       TF_DOMAIN                   = "${var.domain}",
-      TF_SITE_URL                 = "${var.site_url}-${var.environment}",
+      TF_SITE_URL                 = "${var.site_url}",
       TF_TIMEZONE                 = "${var.timezone}",
       TF_REGION                   = "${var.region}",
       TF_SPACES_BUCKET            = "${digitalocean_spaces_bucket.this.name}",
@@ -131,6 +131,7 @@ locals {
       TF_DEFAULT_ORGANIZATION     = "${var.studio_org}",
       TF_DEFAULT_PROJECT          = "${var.studio_project}",
       TF_ENVIRONMENT              = "${var.environment}",
+      TF_OPENAI_API_KEY           = "${var.openai_api_key}"
     }
   )
 

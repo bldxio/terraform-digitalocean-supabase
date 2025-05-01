@@ -1,7 +1,3 @@
-# Usage
-#   Start:          docker compose up -d
-#   Stop:           docker compose down
-
 version: "3.8"
 
 services:
@@ -44,12 +40,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 1
+    depends_on:
+      analytics:
+        condition: service_healthy
     # No external ports - access only through SWAG/NGINX proxy
     expose:
       - "3000"
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
 
       DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
       DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
@@ -59,9 +59,20 @@ services:
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
 
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_URL: http://analytics:4000
+      NEXT_PUBLIC_ENABLE_LOGS: true
+      # Comment to use Big Query backend for analytics
+      NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
+      # Uncomment to use Big Query backend for analytics
+      # NEXT_ANALYTICS_BACKEND_PROVIDER: bigquery
+
   kong:
     container_name: supabase-kong
     image: kong:2.8.1
+    depends_on:
+      analytics:
+        condition: service_healthy
     restart: unless-stopped
     ports:
       - ${KONG_HTTP_PORT}:8000/tcp
@@ -149,6 +160,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      analytics:
+        condition: service_healthy
     restart: unless-stopped
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
@@ -162,6 +175,8 @@ services:
     image: supabase/realtime:v2.34.43
     depends_on:
       db:
+        condition: service_healthy
+      analytics:
         condition: service_healthy
     # Use a simple health check that always succeeds
     healthcheck:
@@ -203,6 +218,7 @@ services:
     image: supabase/storage-api:v1.19.3
     depends_on:
       db:
+        # Disable this if you are using an external Postgres database
         condition: service_healthy
       rest:
         condition: service_started
@@ -255,6 +271,9 @@ services:
     image: supabase/postgres-meta:v0.87.1
     depends_on:
       db:
+        # Disable this if you are using an external Postgres database
+        condition: service_healthy
+      analytics:
         condition: service_healthy
     restart: unless-stopped
     environment:
@@ -268,6 +287,9 @@ services:
   functions:
     container_name: supabase-edge-functions
     image: supabase/edge-runtime:v1.67.4
+    depends_on:
+      analytics:
+        condition: service_healthy
     restart: unless-stopped
     environment:
       JWT_SECRET: ${JWT_SECRET}
@@ -286,9 +308,54 @@ services:
       - --main-service
       - /home/deno/functions/main
 
+  analytics:
+    container_name: supabase-analytics
+    image: supabase/logflare:1.12.0
+    restart: unless-stopped
+    ports:
+      - 4000:4000
+    # Uncomment to use Big Query backend for analytics
+    # volumes:
+    #   - type: bind
+    #     source: ${PWD}/gcloud.json
+    #     target: /opt/app/rel/logflare/bin/gcloud.json
+    #     read_only: true
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:4000/health"]
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    depends_on:
+      db:
+        # Disable this if you are using an external Postgres database
+        condition: service_healthy
+    environment:
+      LOGFLARE_NODE_HOST: 127.0.0.1
+      DB_USERNAME: supabase_admin
+      DB_DATABASE: _supabase
+      DB_HOSTNAME: ${POSTGRES_HOST}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_SCHEMA: _analytics
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_SINGLE_TENANT: true
+      LOGFLARE_SUPABASE_MODE: true
+      LOGFLARE_MIN_CLUSTER_SIZE: 1
+
+      # Comment variables to use Big Query backend for analytics
+      POSTGRES_BACKEND_URL: postgresql://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/_supabase
+      POSTGRES_BACKEND_SCHEMA: _analytics
+      LOGFLARE_FEATURE_FLAG_OVERRIDE: multibackend=true
+      # Uncomment to use Big Query backend for analytics
+      # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
+      # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
+
   db:
     container_name: supabase-db
     image: supabase/postgres:15.8.1.060
+    depends_on:
+      vector:
+        condition: service_healthy
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s
@@ -318,4 +385,37 @@ services:
       - ./volumes/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:Z
       # Must be superuser to alter reserved role
       - ./volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
+      # Initialize the database settings with JWT_SECRET and JWT_EXP
+      # - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
+      # Changes required for internal supabase data such as _analytics
+      - ./volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z`
+      # Changes required for Analytics support
+      - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
+      # PGDATA directory is persisted between restarts
       - /mnt/supabase_volume/supabase/data/:/var/lib/postgresql/data:Z
+
+  vector:
+    container_name: supabase-vector
+    image: timberio/vector:0.28.1-alpine
+    restart: unless-stopped
+    volumes:
+      - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro,z
+      - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro,z
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://vector:9001/health",
+        ]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+    command: ["--config", "/etc/vector/vector.yml"]
+    security_opt:
+      - "label=disable"

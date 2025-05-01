@@ -25,7 +25,7 @@ data "cloudinit_config" "this" {
       sudo apt-get install -y tailscale
 
       # Authenticate with the generated key and enable MagicDNS
-      tailscale up --authkey=${tailscale_tailnet_key.supabase.key} --hostname=supastudio-${var.environment} --advertise-tags=tag:${var.environment},tag:server --accept-dns=true
+      tailscale up --authkey=${tailscale_tailnet_key.supabase.key} --hostname=${var.site_url} --advertise-tags=tag:${var.environment},tag:server --accept-dns=true
 
       # Get Tailscale IP for studio binding
       TAILSCALE_IP=$(tailscale ip -4)
@@ -41,8 +41,8 @@ data "cloudinit_config" "this" {
       mkdir -p /mnt/supabase_volume/supabase/data
 
       # After tailscale has been set up and authenticated
-      # Get the Tailscale domain for supastudio
-      TAILSCALE_HOSTNAME="supastudio-${var.environment}"
+      # Get the Tailscale domain for supabase
+      TAILSCALE_HOSTNAME=${var.site_url}
       TAILSCALE_DOMAIN=$(tailscale status | grep "$TAILSCALE_HOSTNAME" | awk '{print $3}')
 
       if [ -z "$TAILSCALE_DOMAIN" ]; then

@@ -1,40 +1,26 @@
-# You can also set DIGITALOCEAN_TOKEN env variable
-# Set the variable value in *.tfvars file or use the -var="do_token=..." CLI option
 variable "do_token" {
   description = "DO API token with read and write permissions."
   type        = string
   sensitive   = true
 }
 
-# You can also set SPACES_ACCESS_KEY_ID env variable.
-# Set the variable value in *.tfvars file or use the -var="spaces_access_key_id=..." CLI option
 variable "spaces_access_key_id" {
   description = "Access key ID used for Spaces API operations."
   type        = string
   sensitive   = true
 }
 
-# You can also set SPACES_SECRET_ACCESS_KEY env variable
-# Set the variable value in *.tfvars file or use the -var="spaces_secret_access_key=..." CLI option
 variable "spaces_secret_access_key" {
   description = "Secret access key used for Spaces API operations."
   type        = string
   sensitive   = true
 }
 
-# You can also set SENDGRID_API_KEY env variable
-# Set the variable value in *.tfvars file or use the -var="sendgrid_api=..." CLI option
 variable "sendgrid_api" {
   description = "SendGrid API Key."
   type        = string
   sensitive   = true
 }
-
-# You can also set CLOUDFLARE_API_TOKEN env variable
-# Set the variable value in *.tfvars file or use the -var="cloudflare_api_token=..." CLI option
-# variable "cloudflare_email" {
-#   type = string
-# }
 
 variable "cloudflare_api_token" {
   type = string
@@ -44,13 +30,11 @@ variable "cloudflare_zone_id" {
   type = string
 }
 
-# # You can also set TF_TOKEN_app_terraform_io
-# # Set the variable value in *.tfvars file or use the -var="_=..." CLI option
-# variable "tf_token" {
-#   description = "Terraform Cloud API Token."
-#   type        = string
-#   sensitive   = true
-# }
+variable "openai_api_key" {
+  description = "openai api key for supabase"
+  type        = string
+  sensitive   = true
+}
 
 variable "region" {
   description = "The region where the Droplet will be created."
@@ -70,7 +54,6 @@ variable "domain" {
 variable "project_id" {
   description = "The ID of the DigitalOcean project to assign resources to. If not provided, resources will be assigned to the default project."
   type        = string
-  default     = ""
 }
 
 variable "site_url" {

@@ -9,7 +9,7 @@ server {
     client_max_body_size 20m;
 
     # API Endpoints (no auth)
-    location ~ ^/(rest|auth|graphql|realtime|storage)/v1/(.*)$ {
+    location ~ ^/(rest|auth|graphql|realtime|storage|functions)/v1/(.*)$ {
         include /config/nginx/proxy.conf;
         include /config/nginx/resolver.conf;
         set $upstream_app kong;
@@ -49,7 +49,7 @@ server {
     }
 
     # API Endpoints (optional: allow API access from Tailscale/LAN)
-    location ~ ^/(rest|auth|graphql|realtime|storage)/v1/(.*)$ {
+    location ~ ^/(rest|auth|graphql|realtime|storage|functions)/v1/(.*)$ {
         include /config/nginx/proxy.conf;
         include /config/nginx/resolver.conf;
         set $upstream_app kong;

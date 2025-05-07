@@ -1,4 +1,5 @@
 name: Build Packer Image with HCP Packer
+
 on:
   push:
     branches:
@@ -7,41 +8,53 @@ on:
     paths:
       - "packer/**"
       - ".github/workflows/build-packer-image.yml"
+
 jobs:
   build:
     name: Build Supabase Packer Image with HCP
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
     env:
       PACKER_LOG: 1
-      PKR_VAR_do_token: ${{secrets.DO_API_TOKEN}}
-      PKR_VAR_region: ${{vars.DO_REGION}}
-      PKR_VAR_droplet_image: ${{vars.DO_DROPLET_IMAGE}}
-      PKR_VAR_droplet_size: ${{vars.DO_DROPLET_SIZE}}
-      PKR_VAR_hcp_bucket_name: "${{vars.HCP_BUCKET_NAME}}"
-      PKR_VAR_github_actor: ${{github.actor}}
-      PKR_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-      # HCP Packer authentication
-      HCP_CLIENT_ID: ${{secrets.HCP_CLIENT_ID}}
-      HCP_CLIENT_SECRET: ${{secrets.HCP_CLIENT_SECRET}}
+      PKR_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
+      PKR_VAR_region: ${{ vars.DO_REGION }}
+      PKR_VAR_droplet_image: ${{ vars.DO_DROPLET_IMAGE }}
+      PKR_VAR_droplet_size: ${{ vars.DO_DROPLET_SIZE }}
+      PKR_VAR_hcp_bucket_name: "${{ vars.HCP_BUCKET_NAME }}"
+      PKR_VAR_github_actor: ${{ github.actor }}
+      HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+      HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set PKR_VAR_environment based on branch
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "PKR_VAR_environment=prd" >> $GITHUB_ENV
+          else
+            echo "PKR_VAR_environment=dev" >> $GITHUB_ENV
+          fi
+
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
         with:
-          version: "1.9.4" # Use a specific version or 'latest'
+          version: "1.9.4"
+
       - name: Initialize Packer
         working-directory: ./packer
         run: packer init .
+
       - name: Build and publish image with HCP Packer
         working-directory: ./packer
         run: |
           packer build \
-            -var hcp_client_id="${{secrets.HCP_CLIENT_ID}}" \
-            -var hcp_client_secret="${{secrets.HCP_CLIENT_SECRET}}" \
+            -var hcp_client_id="${{ secrets.HCP_CLIENT_ID }}" \
+            -var hcp_client_secret="${{ secrets.HCP_CLIENT_SECRET }}" \
             .
+
       - name: Display HCP Packer build information
         run: |
           echo "Build complete. Image has been published to HCP Packer."
           echo "Bucket: ${{ vars.HCP_BUCKET_NAME }}"
+          echo "Environment: $PKR_VAR_environment"

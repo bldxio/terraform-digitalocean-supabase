@@ -1,26 +1,58 @@
 # Supabase on DigitalOcean - Packer
 
-> _IMPORTANT:_ A note on secrets/tokens/apis. Ensure that any files containing secrets/tokens/apis are _NOT_ stored in version control.
+> **IMPORTANT:** Do not commit secrets/tokens/API keys to version control. All sensitive values should be managed securely.
 
-The initial step is to create a Snapshot, using Packer, and storing it on DigitalOcean. To do this you'll have to input some variables within a `supabase.auto.pkrvars.hcl` file. An [example](./supabase.auto.pkrvars.hcl.example) file has been provided.
+## What is this?
+This directory contains [Packer](https://www.packer.io/) configuration for building the base DigitalOcean image (snapshot) used to deploy self-hosted Supabase on DigitalOcean. The image includes Docker, Docker Compose, and all necessary configuration and files for Supabase services.
 
-```bash
-## From the root of the repository change directory to the packer directory
-cd packer
+## How it Works
+- **Automated CI/CD:**
+  - Any push to the `dev` or `main` branches that modifies files in this directory (or the workflow file itself) triggers the [build-packer-image.yml](../.github/workflows/build-packer-image.yml) GitHub Actions workflow.
+  - The workflow builds and publishes a new image for both the `dev` and `prd` environments using [HCP Packer](https://developer.hashicorp.com/packer/docs/hcp).
+  - Image metadata is managed in HCP Packer, and the image is published to DigitalOcean for use in downstream Terraform deployments.
 
-## Copy the example file to supabase.auto.pkrvars.hcl, modify it with your own variables and save
-cp supabase.auto.pkrvars.hcl.example supabase.auto.pkrvars.hcl
-```
+- **Environment Mapping:**
+  - Changes on `dev` branch build and publish a `dev` image.
+  - Changes on `main` branch build and publish a `prd` (production) image.
 
-After creating the variables you can create the snapshot and upload it to DO by running the following commands:
+## How to Make and Test Changes
+1. **Edit the Image:**
+   - Modify files in the `supabase/` directory to change what gets baked into the image (e.g., Docker Compose files, configs, SQL scripts).
+   - Update the `supabase.pkr.hcl` config or scripts as needed.
 
-```bash
-## Initialise packer to download any plugin binaries needed
-packer init .
+2. **Test Locally (Optional):**
+   - Copy and edit `supabase.auto.pkrvars.hcl.example` to `supabase.auto.pkrvars.hcl` and fill in your secrets and settings.
+   - From the `packer` directory:
+     ```bash
+     packer init .
+     packer build .
+     ```
+   - This will build and upload a snapshot to your DigitalOcean account for manual testing.
 
-## Build the snapshot and upload it as a Snapshot on DO
-packer build .
-```
+3. **Push Changes:**
+   - Commit and push your changes to `dev` or `main`.
+   - The GitHub Actions workflow will automatically build and publish the new image for the correct environment.
+   - You can view build logs and image info in the Actions tab and HCP Packer dashboard.
+
+## How the Automation Works
+- See [build-packer-image.yml](../.github/workflows/build-packer-image.yml) for full details.
+- The workflow:
+  - Authenticates using GitHub and HCP Packer credentials.
+  - Initializes and builds the Packer image.
+  - Publishes the image to HCP Packer and DigitalOcean.
+  - Tags images for `dev` or `prd` based on the branch.
+
+## File Structure
+- `supabase/`: All files and configs baked into the image (Docker Compose, configs, SQL, etc.)
+- `scripts/`: Setup scripts run during image build.
+- `supabase.pkr.hcl`: Main Packer configuration.
+- `supabase.auto.pkrvars.hcl.example`: Example secrets/config file for local builds.
+
+---
+
+After a successful build, the new image will be available in DigitalOcean and referenced by downstream Terraform modules for infrastructure deployment.
+
+For next steps, see the [terraform directory](../terraform/).
 
 ## Packer file structure
 

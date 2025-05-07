@@ -187,6 +187,7 @@ variable "studio_port" {
 variable "studio_org" {
   description = "Organization for Studio Configuration."
   type        = string
+  default     = "Default Organization"
 }
 
 variable "studio_project" {

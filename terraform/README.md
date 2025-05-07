@@ -1,34 +1,46 @@
-# Supabase on DigitalOcean - Terraform
+# Supabase on DigitalOcean - Terraform Module
 
-> _IMPORTANT:_ A note on secrets/tokens/apis and the `terraform.tfstate` file. Ensure that any files containing secrets/tokens/apis as well as the `terraform.tfstate` file are _NOT_ stored in version control.
+> **Note:** This module is designed for use with [Terraform Cloud](https://app.terraform.io/) for remote state management, secure variable handling, and automated runs. Local usage is possible, but Terraform Cloud is strongly recommended for production.
 
-This is where most of the magic will happen as all you need to do is configure your variables and run 3 _(2 if you're confident in what is happening)_ commands.
+This module provisions a complete [Supabase](https://supabase.com/) stack on DigitalOcean, including compute, storage, authentication, networking, email, and security integrations. It is intended to be used via the Terraform Cloud private registry:
 
-```bash
-## From the root of the repository change directory to the terraform directory
-## (from the packer directory  use ../terraform)
-cd terraform
+[`app.terraform.io/BLDX/supabase/digitalocean`](https://app.terraform.io/app/BLDX/supabase/digitalocean)
 
-## Copy the example file to terraform.tfvars, modify it with your own variables and save
-cp terraform.tfvars.example terraform.tfvars
+---
+
+## Terraform Cloud Setup
+
+1. **Create a Workspace:**
+   - Go to [Terraform Cloud](https://app.terraform.io/) and create a new workspace for your project.
+   - Connect the workspace to your version control repository (recommended) or upload your configuration manually.
+
+2. **Configure Variables:**
+   - Set all required variables (API tokens, secrets, config) in the Terraform Cloud workspace UI under "Variables". These should be set as environment variables, **NOT** as Terraform variables, for security and compatibility.
+   - Mark sensitive values (API keys, passwords) as sensitive.
+
+3. **Remote Backend:**
+   - The backend is managed by Terraform Cloud; no local state file will be created.
+
+4. **Run Terraform:**
+   - Push changes to your repository or trigger a run from the Terraform Cloud UI.
+   - Approve and apply the plan directly in Terraform Cloud.
+
+---
+
+## Example Usage
+
+```hcl
+module "supabase" {
+  source = "app.terraform.io/BLDX/supabase/digitalocean"
+
+  # Required variables (set these as environment variables in your workspace)
+  do_token                 = var.do_token
+  tailscale_api_key        = var.tailscale_api_key
+  # ...etc
+}
 ```
 
-A list of required variables, as well as optional variables with their default values, is documented below. Go through the list and modify the `terraform.tfvars` accordingly with your own values.
-
-After creating the variables run the following commands to deploy the resources:
-
-```bash
-## Initialise terraform to download any plugin binaries needed
-terraform init
-
-## Create and show a plan of what will be created
-## (skip if you want to apply immediately)
-terraform plan
-
-## Apply the changes specified by confirming at the prompt
-## (--auto-approve if you're feeling adventures)
-terraform apply
-```
+See the [variables documentation](https://github.com/bldxio/terraform-digitalocean-supabase/blob/v0.0.1/terraform/variables.tf) for the full list of required and optional inputs.
 
 Once all the resources have been created you'll see the following message (the bucket name, volume id and reserved ip will obviously be different):
 

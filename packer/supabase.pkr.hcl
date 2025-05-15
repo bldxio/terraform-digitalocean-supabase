@@ -36,7 +36,7 @@ variable "droplet_image" {
 variable "droplet_size" {
   description = "The unique slug that identifies the type of Droplet."
   type        = string
-  default     = "s-2vcpu-4gb"
+  default     = "s-4vcpu-8gb"
 }
 
 # HCP Packer registry variables
@@ -118,7 +118,7 @@ build {
 
   # Process the template and overwrite the existing file
   provisioner "file" {
-    content     = templatefile("./supabase/supabase.subdomain.conf.pkrtpl.hcl", {
+    content = templatefile("./supabase/supabase.subdomain.conf.pkrtpl.hcl", {
       environment = var.environment
     })
     destination = "/root/supabase/supabase.subdomain.conf"

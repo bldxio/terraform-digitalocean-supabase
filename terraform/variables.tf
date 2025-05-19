@@ -51,7 +51,7 @@ variable "domain" {
   type        = string
 }
 
-variable "project_id" {
+variable "do_project_id" {
   description = "The ID of the DigitalOcean project to assign resources to. If not provided, resources will be assigned to the default project."
   type        = string
 }
@@ -182,18 +182,6 @@ variable "studio_port" {
   description = "Port for the Supabase Studio"
   type        = number
   default     = 3000
-}
-
-variable "studio_org" {
-  description = "Organization for Studio Configuration."
-  type        = string
-  default     = "Default Organization"
-}
-
-variable "studio_project" {
-  description = "Project for Studio Configuration."
-  type        = string
-  default     = "Default Project"
 }
 
 variable "smtp_host" {

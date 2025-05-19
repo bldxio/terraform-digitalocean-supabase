@@ -25,7 +25,7 @@ In addition to the above components, the docker-compose file also runs [swag](ht
 
 ### DigitalOcean Components
 
-All of the above will be running on a DigitalOcean [Droplet](https://www.digitalocean.com/products/droplets). Persistent storage for the database is provided via a [Volume](https://www.digitalocean.com/products/block-storage) attached to the Droplet and object storage, for artifacts like profile pics and more, will be achieved using [Spaces](https://www.digitalocean.com/products/spaces ). A Domain, Reserved IP and Firewall are also setup to ensure we can securely access our Supabase instance from the web.
+All of the above will be running on a DigitalOcean [Droplet](https://www.digitalocean.com/products/droplets). Persistent storage for the database is provided via a [Volume](https://www.digitalocean.com/products/block-storage) attached to the Droplet and object storage, for artifacts like profile pics and more, will be achieved using [Spaces](https://www.digitalocean.com/products/spaces). A Domain, Reserved IP and Firewall are also setup to ensure we can securely access our Supabase instance from the web.
 
 ### SendGrid
 
@@ -40,6 +40,7 @@ At DigitalOcean [simplicity in all we DO](https://www.digitalocean.com/about) is
 This module is designed to be environment-aware, allowing you to deploy Supabase across multiple environments (development, staging, production) while maintaining appropriate configurations for each. The module uses Packer's templating functionality to embed the environment variable into the NGINX configuration during image creation.
 
 Key features:
+
 - The `environment` variable is passed through all layers (Terraform → Packer → Docker Compose → NGINX)
 - Environment information is visible in HTTP headers (X-Environment)
 - Tailscale certificate handling is environment-aware
@@ -52,14 +53,14 @@ When deploying to different environments, simply set the `environment` variable 
 ```hcl
 module "supabase_dev" {
   source = "github.com/digitalocean/terraform-digitalocean-supabase"
-  
+
   environment = "dev"
   # Other variables...
 }
 
 module "supabase_prod" {
   source = "github.com/digitalocean/terraform-digitalocean-supabase"
-  
+
   environment = "prod"
   # Other variables...
 }
@@ -67,19 +68,20 @@ module "supabase_prod" {
 
 ### Assigning Resources to an Existing Project
 
-If your DigitalOcean projects are managed outside of Terraform, you can assign the created resources to an existing project using the `project_id` variable:
+If your DigitalOcean projects are managed outside of Terraform, you can assign the created resources to an existing project using the `do_project_id` variable:
 
 ```hcl
 module "supabase_prod" {
   source = "github.com/digitalocean/terraform-digitalocean-supabase"
-  
+
   environment = "prod"
-  project_id  = "your-project-id-here"  # Add this line to assign resources to a specific project
+  do_project_id  = "your-project-id-here"  # Add this line to assign resources to a specific project
   # Other variables...
 }
 ```
 
 To get your project ID, you can use:
+
 ```bash
 # List all projects
 doctl projects list
@@ -88,7 +90,7 @@ doctl projects list
 curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $YOUR_API_TOKEN" "https://api.digitalocean.com/v2/projects"
 ```
 
-Without providing a `project_id`, resources will be assigned to your DigitalOcean default project.
+Without providing a `do_project_id`, resources will be assigned to your DigitalOcean default project.
 
 ## Pre-requisites
 
@@ -96,7 +98,7 @@ Without providing a `project_id`, resources will be assigned to your DigitalOcea
 - [SendGrid](https://app.sendgrid.com/login/) account (You can [signup](https://signup.sendgrid.com/) for free);
 - [packer cli](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli);
 - [terraform cli](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli);
-- curl installed on your machine (if you are running a *nix or Mac OS there is a 99.9% chance of you already having this installed. For Windows users use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install));
+- curl installed on your machine (if you are running a \*nix or Mac OS there is a 99.9% chance of you already having this installed. For Windows users use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install));
 - A Domain you own [added to DigitalOceans' Domain section](https://docs.digitalocean.com/products/networking/dns/how-to/add-domains/) and the nameservers in your chosen domain registrar pointed towards DigitalOceans' own NS records([docs](https://docs.digitalocean.com/tutorials/dns-registrars/)).
 
 ## The Manual Part
@@ -108,9 +110,11 @@ Without providing a `project_id`, resources will be assigned to your DigitalOcea
 - (_Optional_) If using Terraform Cloud to manage your state file, create a [user API token](https://app.terraform.io/app/settings/tokens)
 
 ## The (Semi-)Automated Part
+
 _We're going to run some cli commands within our terminal which can be automated within a CI/CD process._
 
 Once we've setup and created all of the above, clone the repository:
+
 ```bash
 git clone https://github.com/digitalocean/supabase-on-do.git
 cd supabase-on-do
@@ -120,6 +124,7 @@ cd supabase-on-do
 2. Finally we will deploy our resources using terraform as specified [here](./terraform).
 
 ## _TLDR_
+
 _Or the - I didn't want to read the next sections, just give me the commands to run, I trust you - version_
 
 ### Run Packer to create the Snapshot
@@ -198,12 +203,13 @@ The Supabase Studio is configured to only be accessible through your Tailscale n
 Follow these steps to access your Studio:
 
 1. Make sure you're connected to your Tailscale network
-2. In your browser, navigate to https://supabase.yourdomain.com
-   - The Studio UI will only be accessible from Tailscale IP addresses
-   - Nginx is configured to reject all other connection attempts
+2. In your browser, navigate to <https://supabase.yourdomain.com>
+    - The Studio UI will only be accessible from Tailscale IP addresses
+    - Nginx is configured to reject all other connection attempts
 3. When prompted for authentication, enter your provided username and the generated htpasswd
 
 **Important**: If you're having issues with connectivity, ensure that:
+
 - You are connected to your Tailscale network before trying to access the Studio
 - You have proper ACL permissions in your Tailscale admin console
 - Your Tailscale client is properly connected
@@ -223,30 +229,34 @@ This deployment uses the following Tailscale configuration:
 If your Droplet isn't connecting to Tailscale or you can't access the studio:
 
 1. **Check Tailscale logs on the server**:
-   ```bash
-   ssh root@<your-droplet-ip>
-   systemctl status tailscaled
-   journalctl -u tailscaled
-   ```
+
+    ```bash
+    ssh root@<your-droplet-ip>
+    systemctl status tailscaled
+    journalctl -u tailscaled
+    ```
 
 2. **Verify Tailscale API key and tailnet**:
-   - Ensure your Tailscale API key has the correct permissions
-   - Verify your tailnet name is correct in your terraform.tfvars file
+
+    - Ensure your Tailscale API key has the correct permissions
+    - Verify your tailnet name is correct in your terraform.tfvars file
 
 3. **Check ACL rules in Tailscale admin console**:
-   - Verify that your user account has access to tagged devices
-   - Check that the `tag:supabase` tag is properly applied
+
+    - Verify that your user account has access to tagged devices
+    - Check that the `tag:supabase` tag is properly applied
 
 4. **Verify Studio binding**:
-   ```bash
-   ssh root@<your-droplet-ip>
-   docker ps | grep studio
-   docker logs supabase-studio
-   ```
+
+    ```bash
+    ssh root@<your-droplet-ip>
+    docker ps | grep studio
+    docker logs supabase-studio
+    ```
 
 5. **Check firewall settings**:
-   - The Terraform configuration automatically opens UDP port 41641 for Tailscale connectivity
-   - Verify this rule exists in your DigitalOcean firewall
+    - The Terraform configuration automatically opens UDP port 41641 for Tailscale connectivity
+    - Verify this rule exists in your DigitalOcean firewall
 
 Take a **5-10 min** break after applying Terraform to allow all services to start properly. If you're not connected to Tailscale, you won't be able to access the Studio - this is by design for enhanced security.
 

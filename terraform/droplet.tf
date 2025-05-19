@@ -25,7 +25,7 @@ data "cloudinit_config" "this" {
       sudo apt-get install -y tailscale
 
       # Authenticate with the generated key and enable MagicDNS
-      tailscale up --authkey=${tailscale_tailnet_key.supabase.key} --hostname=${var.site_url} --advertise-tags=tag:${var.environment},tag:server --accept-dns=true
+      tailscale up --authkey=${tailscale_tailnet_key.supabase.key} --hostname="${var.site_url}-${var.environment} --advertise-tags=tag:${var.environment},tag:server --accept-dns=true
 
       # Get Tailscale IP for studio binding
       TAILSCALE_IP=$(tailscale ip -4)
@@ -33,7 +33,7 @@ data "cloudinit_config" "this" {
 
       # Mount the volume first
       mkdir -p /mnt/supabase_volume
-      sudo mount -o defaults,nofail,discard,noatime /dev/disk/by-id/scsi-0DO_Volume_supabase-volume /mnt/supabase_volume
+      sudo mount -o defaults,nofail,discard,noatime /dev/disk/by-id/scsi-0DO_Volume_${random_id.volume.hex} /mnt/supabase_volume
       sleep 10
 
       # Now create directories on the mounted volume
@@ -93,7 +93,7 @@ data "cloudinit_config" "this" {
 
 resource "digitalocean_droplet" "this" {
   image      = data.hcp_packer_artifact.supabase.external_identifier
-  name       = "supabase-droplet"
+  name       = "supabase-droplet-${var.environment}"
   region     = var.region
   size       = var.droplet_size
   monitoring = true

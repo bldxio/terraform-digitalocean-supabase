@@ -34,9 +34,14 @@ resource "digitalocean_spaces_bucket_policy" "this" {
   })
 }
 
+resource "random_id" "volume" {
+  byte_length = 4
+  prefix      = "supabase-volume-${var.environment}-"
+}
+
 resource "digitalocean_volume" "this" {
   region                  = var.region
-  name                    = "supabase-volume"
+  name                    = random_id.volume.hex
   size                    = var.volume_size
   initial_filesystem_type = "ext4"
   description             = "Supabase PostgreSQL Persistant Volume."

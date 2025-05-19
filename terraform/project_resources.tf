@@ -3,7 +3,7 @@
 
 # Local variable to determine if we should assign resources to a specific project
 locals {
-  assign_to_project = var.project_id != ""
+  assign_to_project = var.do_project_id != ""
 }
 
 # Wait for resources to be fully created before assigning them to a project
@@ -24,7 +24,7 @@ resource "time_sleep" "wait_for_resources" {
 resource "digitalocean_project_resources" "prd" {
   count = local.assign_to_project ? 1 : 0
 
-  project = var.project_id
+  project = var.do_project_id
   resources = [
     digitalocean_droplet.this.urn,
     digitalocean_spaces_bucket.this.urn,
@@ -36,3 +36,4 @@ resource "digitalocean_project_resources" "prd" {
     time_sleep.wait_for_resources
   ]
 }
+

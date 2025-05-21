@@ -7,3 +7,4 @@ terraform.tfvars
 *.tfstate*
 supabase.auto.pkrvars.hcl
 .vscode/
+CLAUDE.md

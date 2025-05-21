@@ -40,8 +40,8 @@ variable "droplet_size" {
 }
 
 # HCP Packer registry variables
-variable "hcp_bucket_name" {
-  description = "The name of the HCP Packer bucket."
+variable "service" {
+  description = "The name of the HCP Packer bucket defined by the using service"
   type        = string
   default     = "supabase"
 }
@@ -69,13 +69,22 @@ variable "environment" {
   type        = string
 }
 
+variable "org" {
+  description = "The organization or entity that owns the resources"
+  type        = string
+}
+
 locals {
   timestamp     = regex_replace(timestamp(), "[- TZ:]", "")
   snapshot_name = "supabase-${var.environment}-${local.timestamp}"
   tags = [
-    "supabase",
-    "digitalocean",
-    "packer",
+    "org:${var.org}",
+    "deployBy:${var.github_actor}",
+    "owner:${var.github_actor}",
+    "name:supabase-do-packer",
+    "service:${var.service}",
+    "service:digitalocean",
+    "service:packer",
     "env:${var.environment}"
   ]
 }
@@ -96,17 +105,19 @@ build {
 
   # HCP Packer registry configuration
   hcp_packer_registry {
-    bucket_name = "${var.hcp_bucket_name}-${var.environment}"
+    bucket_name = "${var.service}-${var.environment}"
     description = "Supabase image for DigitalOcean droplets"
 
     build_labels = {
       "build-time"   = timestamp()
       "build-source" = "packer"
-      "created-by"   = var.github_actor
-      "deployer"     = var.github_actor
+      "owner"        = var.github_actor
+      "deployedBy"   = var.github_actor
       "os"           = var.droplet_image
       "region"       = var.region
-      "environment"  = var.environment
+      "env"          = var.environment
+      "org"          = var.org
+      "service"      = var.service
     }
   }
 

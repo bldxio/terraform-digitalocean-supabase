@@ -19,9 +19,10 @@ jobs:
       PKR_VAR_domain: ${{vars.DOMAIN}}
       PKR_VAR_droplet_image: ${{vars.DO_DROPLET_IMAGE}}
       PKR_VAR_droplet_size: ${{vars.DO_DROPLET_SIZE}}
-      PKR_VAR_hcp_bucket_name: "${{vars.HCP_BUCKET_NAME}}"
+      PKR_VAR_service: "${{vars.SERVICE}}"
       PKR_VAR_github_actor: ${{github.actor}}
       PKR_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
+      PKR_VAR_org: ${{vars.ORG}}
       # HCP Packer authentication
       HCP_CLIENT_ID: ${{secrets.HCP_CLIENT_ID}}
       HCP_CLIENT_SECRET: ${{secrets.HCP_CLIENT_SECRET}}
@@ -45,4 +46,4 @@ jobs:
       - name: Display HCP Packer build information
         run: |
           echo "Build complete. Image has been published to HCP Packer."
-          echo "Bucket: ${{ vars.HCP_BUCKET_NAME }}"
+          echo "Bucket: ${{vars.SERVICE}}-${{vars.environment}}"

@@ -120,4 +120,40 @@ If your repo is private, you may need to set a `GITHUB_TOKEN` or use an SSH URL 
 
 **Best Practice:** Never reference `dev` or pre-release tags in production code. Use only for local/dev/test workspaces.
 
+
+---
+
+## Recommended Developer Workflow for Module Changes
+
+To ensure safe and efficient development, follow this workflow:
+
+1. **Checkout a feature branch from `dev`.**
+2. **Test locally:**
+   - Use a local path for fastest iteration:
+     ```hcl
+     source = "/absolute/path/to/terraform-digitalocean-supabase/terraform"
+     ```
+   - Or use a remote feature branch if pushed:
+     ```hcl
+     source = "github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=feature/my-feature"
+     ```
+   - Run `terraform init` and `terraform plan` locally to validate changes.
+3. **Open a PR to `dev` in the module repo.**
+4. **When merged, CI creates a pre-release tag** (e.g., `v1.2.4-dev.1`).
+5. **Update the dev environment to use the new pre-release tag:**
+   ```hcl
+   source = "github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=v1.2.4-dev.1"
+   ```
+6. **A GitHub Actions automation will open a PR in the infra repo to update the dev environment's module source to the new pre-release tag.**
+7. **Merge the PR to deploy the new version to dev, then run `terraform init` and `terraform apply`.**
+
+| Stage            | Module Source Example                                                                 |
+|------------------|--------------------------------------------------------------------------------------|
+| Local feature    | /absolute/path/to/terraform-digitalocean-supabase/terraform                          |
+| Remote feature   | github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=feature/my-feature  |
+| Dev environment  | github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=v1.2.4-dev.1        |
+| Production       | app.terraform.io/BLDX/supabase/digitalocean//terraform + version                     |
+
+**Never use dev or feature branches as sources in production. Only use stable releases from the registry in prod.**
+
 For questions, ask in the repo or contact the maintainers.

@@ -261,3 +261,23 @@ If your Droplet isn't connecting to Tailscale or you can't access the studio:
 Take a **5-10 min** break after applying Terraform to allow all services to start properly. If you're not connected to Tailscale, you won't be able to access the Studio - this is by design for enhanced security.
 
 Enjoy and Happy creating :)
+
+---
+
+## Semantic Versioning & Automated Releases
+
+This project uses [semantic-release](https://semantic-release.gitbook.io/) for automated versioning and changelog management. Releases are triggered automatically on pushes to `main` (stable) and `dev` (pre-release).
+
+### How to Write Commits
+- Use [Conventional Commits](https://www.conventionalcommits.org/) format (see `.gitmessage` for a template)
+- Example: `feat: add support for custom DigitalOcean region`
+- See [CONTRIBUTING.md](./CONTRIBUTING.md) for full guidelines and more examples.
+
+### Commit Message Template
+To enable a commit message template in your local repo:
+
+```sh
+git config commit.template .gitmessage
+```
+
+This will prompt you with a helpful template every time you commit from the command line.

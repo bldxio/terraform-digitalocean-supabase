@@ -43,6 +43,20 @@ jobs:
             -var hcp_client_id="${{secrets.HCP_CLIENT_ID}}" \
             -var hcp_client_secret="${{secrets.HCP_CLIENT_SECRET}}" \
             .
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install semantic-release and plugins
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+
+      - name: Run semantic-release (automated versioning & GitHub release)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
       - name: Display HCP Packer build information
         run: |
           echo "Build complete. Image has been published to HCP Packer."

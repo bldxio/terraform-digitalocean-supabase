@@ -4,6 +4,7 @@
 do_token            = ""
 do_region           = ""
 domain              = ""
+service             = ""
 do_droplet_image    = ""
 do_droplet_size     = ""
 hcp_client_id       = ""

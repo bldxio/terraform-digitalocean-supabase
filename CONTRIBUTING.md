@@ -54,4 +54,70 @@ git config commit.template .gitmessage
 
 ---
 
+## Publishing to the Terraform Registry
+
+The Terraform Registry only recognizes tags that match the format `x.y.z` or `vx.y.z` (for example, `1.0.4` or `v1.0.4`). Tags with extra suffixes like `-dev.1` or `-beta.1` are ignored by the registry.
+
+**How this works with our workflow:**
+- The `main` branch creates stable release tags (like `v1.2.3`) via semantic-release. These are picked up and published by the Terraform Registry.
+- The `dev` branch creates pre-release tags (like `1.2.4-dev.1`), which are **not** published to the registry, but are useful for internal testing.
+
+**To publish a new module version:**
+1. Merge your changes into `main` using a Conventional Commit message (e.g., `feat: add new variable`).
+2. semantic-release will automatically create a new version tag and GitHub release.
+3. The Terraform Registry will detect the new tag and publish the module version.
+
+**Summary Table:**
+
+| Branch | Tag Example      | Registry Picked Up? | Purpose              |
+|--------|------------------|---------------------|----------------------|
+| main   | `v1.2.3`         | ✅ Yes              | Public release       |
+| dev    | `v1.2.4-dev.1`   | ❌ No               | Internal pre-release |
+
+**Best Practice:** Only merge to `main` when you are ready to publish a new version. Use `dev` for ongoing development and testing.
+
+
+---
+
+## Testing Pre-releases Locally and with Terraform Cloud
+
+When you want to test changes before they are published as a stable release (for example, after a pre-release on the `dev` branch), you have several options:
+
+### 1. Use a Local Path (for local development)
+```hcl
+module "supabase" {
+  source = "../path/to/terraform-digitalocean-supabase"
+  # ...other variables...
+}
+```
+- **Use this when:** You are developing both your root config and the module on the same machine.
+
+### 2. Use a Git Source with a Branch or Pre-release Tag
+```hcl
+module "supabase" {
+  source = "github.com/bldxio/terraform-digitalocean-supabase?ref=dev"
+  # or use a specific pre-release tag
+  # source = "github.com/bldxio/terraform-digitalocean-supabase?ref=1.2.4-dev.1"
+}
+```
+- **Use this when:** You want to test a pre-release version from GitHub, even if it isn't published to the registry.
+
+### 3. Override in Terraform Cloud
+- Temporarily point your module source to a branch or pre-release tag in your `main.tf` (as above).
+- Run your Terraform Cloud workspace as usual to test the pre-release.
+- Switch back to the registry source after merging to `main` and publishing a stable version.
+
+### 4. Using a Private Repo
+If your repo is private, you may need to set a `GITHUB_TOKEN` or use an SSH URL in your source string.
+
+### Summary Table
+| Use case         | Module source example                                               |
+|------------------|---------------------------------------------------------------------|
+| Local dev        | `../path/to/terraform-digitalocean-supabase`                        |
+| Git pre-release  | `github.com/bldxio/terraform-digitalocean-supabase?ref=dev`         |
+| Git tag          | `github.com/bldxio/terraform-digitalocean-supabase?ref=1.2.4-dev.1` |
+| Registry (prod)  | `bldxio/digitalocean-supabase/module` (from registry)               |
+
+**Best Practice:** Never reference `dev` or pre-release tags in production code. Use only for local/dev/test workspaces.
+
 For questions, ask in the repo or contact the maintainers.

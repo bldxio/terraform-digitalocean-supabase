@@ -82,7 +82,7 @@ locals {
     "deployBy:${var.github_actor}",
     "owner:${var.github_actor}",
     "name:supabase-do-packer",
-    "service:supabase",
+    "service:${var.service}",
     "service:digitalocean",
     "service:packer",
     "env:${var.environment}"

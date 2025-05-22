@@ -261,3 +261,55 @@ If your Droplet isn't connecting to Tailscale or you can't access the studio:
 Take a **5-10 min** break after applying Terraform to allow all services to start properly. If you're not connected to Tailscale, you won't be able to access the Studio - this is by design for enhanced security.
 
 Enjoy and Happy creating :)
+
+---
+
+## Semantic Versioning & Automated Releases
+
+This project uses [semantic-release](https://semantic-release.gitbook.io/) for automated versioning and changelog management. Releases are triggered automatically on pushes to `main` (stable) and `dev` (pre-release).
+
+### How to Write Commits
+- Use [Conventional Commits](https://www.conventionalcommits.org/) format (see `.gitmessage` for a template)
+- Example: `feat: add support for custom DigitalOcean region`
+- See [CONTRIBUTING.md](./CONTRIBUTING.md) for full guidelines and more examples.
+
+**Note:** Only tags created from the `main` branch that match `x.y.z` or `vx.y.z` are published to the Terraform Registry. Pre-release tags (like `1.2.4-dev.1`) from `dev` are ignored by the registry and are for internal testing only.
+
+### Commit Message Template
+To enable a commit message template in your local repo:
+
+```sh
+git config commit.template .gitmessage
+```
+
+This will prompt you with a helpful template every time you commit from the command line.
+
+---
+
+## Testing Pre-releases Locally
+
+If you want to test changes to this module before they are published as a stable release (for example, after a pre-release on the `dev` branch), you can:
+
+### 1. Use a local path (for local development)
+```hcl
+module "supabase" {
+  source = "../path/to/terraform-digitalocean-supabase"
+  # ...other variables...
+}
+```
+
+### 2. Use a git ref (branch or pre-release tag)
+```hcl
+module "supabase" {
+  source = "github.com/bldxio/terraform-digitalocean-supabase?ref=dev"
+  # or a specific pre-release tag:
+  # source = "github.com/bldxio/terraform-digitalocean-supabase?ref=1.2.4-dev.1"
+}
+```
+
+### 3. In Terraform Cloud
+- Temporarily point your module source to a branch or pre-release tag in your `main.tf` (as above).
+- Run your Terraform Cloud workspace as usual to test the pre-release.
+- Switch back to the registry source after merging to `main` and publishing a stable version.
+
+**Tip:** Never use `dev` or pre-release tags in production code. Only use them for local/dev/test workspaces.

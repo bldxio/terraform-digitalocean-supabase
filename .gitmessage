@@ -1,0 +1,27 @@
+# Commit Message Guide (Simple Version)
+
+# 1. What kind of change is this?
+#   Use one of these words:
+#     feat    - for a new feature
+#     fix     - for a bug fix
+#     docs    - for documentation only
+#     chore   - for routine stuff (like updating dependencies)
+#     refactor- for code cleanup (no new features or bug fixes)
+#
+# 2. Write a short summary after a colon. (Keep it under 70 characters)
+#    Example:
+#    feat: add login button
+#    fix: correct typo in README
+#
+# 3. (Optional) Add more details below. Explain what you changed and why.
+#    Example:
+#    Added a login button to the navbar so users can sign in more easily.
+#
+# 4. (Optional) If this change breaks something for users, add this at the end:
+#    BREAKING CHANGE: explain what is breaking and what to do
+
+<type>: <short summary>
+
+# More details about what you changed and why (optional)
+
+# BREAKING CHANGE: (if needed, explain breaking change here)

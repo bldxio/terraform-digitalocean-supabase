@@ -184,6 +184,18 @@ variable "studio_port" {
   default     = 3000
 }
 
+variable "studio_org" {
+  description = "Organization for Studio Configuration."
+  type        = string
+  default     = "Default Organization"
+}
+
+variable "studio_project" {
+  description = "Project for Studio Configuration."
+  type        = string
+  default     = "Default Project"
+}
+
 variable "smtp_host" {
   description = "The external mail server hostname to send emails through."
   type        = string

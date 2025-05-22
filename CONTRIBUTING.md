@@ -1,22 +1,28 @@
 # Contributing & Semantic Versioning Guide
 
-## Commit Message Guidelines
+Welcome! This project uses **Conventional Commits** and **semantic-release** for automated versioning and changelog management. Please follow these guidelines to keep our workflow smooth, traceable, and beginner-friendly.
 
-We use [Conventional Commits](https://www.conventionalcommits.org/) for all commits. This enables automated semantic versioning and changelog generation via [semantic-release](https://semantic-release.gitbook.io/semantic-release/).
+---
+
+## 🚦 Commit Message Guidelines
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) for every commit. This enables automated semantic versioning and changelog generation.
 
 ### Commit Format
-```
+
+```text
 <type>[optional scope]: <short summary>
 
 [optional body]
 
 [optional footer(s)]
 ```
+
 **Types:**
 - `feat`: New feature (minor version bump)
 - `fix`: Bug fix (patch version bump)
 - `chore`: Maintenance (no release by default)
-- `docs`: Documentation changes
+- `docs`: Documentation only
 - `refactor`: Code refactor (no user-facing change)
 - `BREAKING CHANGE`: (in body/footer) triggers a major release
 
@@ -24,17 +30,36 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for all comm
 - `feat: add support for custom DigitalOcean region`
 - `fix: correct typo in droplet_size variable name`
 - `chore: update dependencies in packer config`
-- `feat: change default networking to private\n\nBREAKING CHANGE: The default networking mode is now private.`
+- `feat: change default networking to private`
 
-## Using the Commit Template
+  <sub>with a breaking change:</sub>
+  
+  ```
+  feat: change default networking to private
+  
+  BREAKING CHANGE: The default networking mode is now private.
+  ```
 
-A commit message template is provided in `.gitmessage` to help you write valid commit messages. To use it:
+#### Best Practices
+- Use the imperative mood (“add”, not “added” or “adds”).
+- Keep the summary under 72 characters.
+- Use the body to explain what and why if it’s not obvious.
+- Use `BREAKING CHANGE:` in the body/footer for any breaking API or behavior changes.
+
+---
+
+## 📝 Using the Commit Template
+
+A commit message template is provided in `.gitmessage` to help you write valid messages. To use it:
 
 ```sh
 git config commit.template .gitmessage
 ```
 
-## Semantic Release Workflow
+---
+
+## 🚀 Semantic Release Workflow
+
 - **Branches:**
   - `main`: Stable releases (e.g., `1.2.3`)
   - `dev`: Pre-releases (e.g., `1.2.4-dev.1`)
@@ -45,6 +70,36 @@ git config commit.template .gitmessage
     - Bump version/tag
     - Update the changelog
     - Create a GitHub release
+
+---
+
+## 🌎 Environment Promotion (Directory-based)
+
+- **All changes are made on the `main` branch.**
+- Test changes in the `envs/dev/supabase` directory using the latest pre-release module tag (auto-updated by GitHub Actions).
+- When ready for production:
+  1. Update `envs/prd/supabase/main.tf` to use a stable module release.
+  2. Run `terraform init` and `terraform apply` in `envs/prd/supabase`.
+- **No code merges are required to promote changes between environments.**
+
+| Stage            | Directory                  | Module Source Example                                         |
+|------------------|---------------------------|--------------------------------------------------------------|
+| Dev environment  | envs/dev/supabase         | github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=v1.2.4-dev.1 |
+| Production       | envs/prd/supabase         | app.terraform.io/BLDX/supabase/digitalocean//terraform + version |
+
+**Never use dev or feature branches as sources in production. Only use stable releases from the registry in prod.**
+
+---
+
+## 💡 Tips for Junior Developers
+- If you’re unsure about your commit message, ask for a review or use the template.
+- Always test your changes in the dev environment before promoting to prod.
+- Keep PRs focused and small for easier review.
+- Read the changelog after each release to stay up to date.
+
+---
+
+Happy contributing! 🚀
 - **Release notes** are generated automatically from commit messages.
 
 ## Tips
@@ -123,36 +178,19 @@ If your repo is private, you may need to set a `GITHUB_TOKEN` or use an SSH URL 
 
 ---
 
-## Recommended Developer Workflow for Module Changes
+## Environment Promotion (Directory-based)
 
-To ensure safe and efficient development, follow this workflow:
+- All changes are made on the main branch.
+- Test changes in the `envs/dev/supabase` directory using the latest pre-release module tag (auto-updated by GitHub Actions).
+- When ready for production:
+  1. Update `envs/prd/supabase/main.tf` to use a stable module release.
+  2. Run `terraform init` and `terraform apply` in `envs/prd/supabase`.
+- No code merges are required to promote changes between environments.
 
-1. **Checkout a feature branch from `dev`.**
-2. **Test locally:**
-   - Use a local path for fastest iteration:
-     ```hcl
-     source = "/absolute/path/to/terraform-digitalocean-supabase/terraform"
-     ```
-   - Or use a remote feature branch if pushed:
-     ```hcl
-     source = "github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=feature/my-feature"
-     ```
-   - Run `terraform init` and `terraform plan` locally to validate changes.
-3. **Open a PR to `dev` in the module repo.**
-4. **When merged, CI creates a pre-release tag** (e.g., `v1.2.4-dev.1`).
-5. **Update the dev environment to use the new pre-release tag:**
-   ```hcl
-   source = "github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=v1.2.4-dev.1"
-   ```
-6. **A GitHub Actions automation will open a PR in the infra repo to update the dev environment's module source to the new pre-release tag.**
-7. **Merge the PR to deploy the new version to dev, then run `terraform init` and `terraform apply`.**
-
-| Stage            | Module Source Example                                                                 |
-|------------------|--------------------------------------------------------------------------------------|
-| Local feature    | /absolute/path/to/terraform-digitalocean-supabase/terraform                          |
-| Remote feature   | github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=feature/my-feature  |
-| Dev environment  | github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=v1.2.4-dev.1        |
-| Production       | app.terraform.io/BLDX/supabase/digitalocean//terraform + version                     |
+| Stage            | Directory                  | Module Source Example                                         |
+|------------------|---------------------------|--------------------------------------------------------------|
+| Dev environment  | envs/dev/supabase         | github.com/bldxio/terraform-digitalocean-supabase//terraform?ref=v1.2.4-dev.1 |
+| Production       | envs/prd/supabase         | app.terraform.io/BLDX/supabase/digitalocean//terraform + version |
 
 **Never use dev or feature branches as sources in production. Only use stable releases from the registry in prod.**
 

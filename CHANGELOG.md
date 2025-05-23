@@ -1,3 +1,10 @@
+# [1.0.0-dev.2](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2025-05-23)
+
+
+### Bug Fixes
+
+* missing quote in init.sh cloudconfig script ([ccc04ff](https://github.com/bldxio/terraform-digitalocean-supabase/commit/ccc04ff14c314c620c95fdaa3d9d6b09e7dee3f1))
+
 # 1.0.0-dev.1 (2025-05-22)
 
 

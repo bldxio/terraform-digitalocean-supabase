@@ -25,7 +25,7 @@ data "cloudinit_config" "this" {
       sudo apt-get install -y tailscale
 
       # Authenticate with the generated key and enable MagicDNS
-      tailscale up --authkey=${tailscale_tailnet_key.supabase.key} --hostname="${var.site_url}-${var.environment} --advertise-tags=tag:${var.environment},tag:server --accept-dns=true
+      tailscale up --authkey=${tailscale_tailnet_key.supabase.key} --hostname="${var.site_url}-${var.environment}" --advertise-tags=tag:${var.environment},tag:server --accept-dns=true
 
       # Get Tailscale IP for studio binding
       TAILSCALE_IP=$(tailscale ip -4)

@@ -1,3 +1,10 @@
+# [1.0.0-dev.3](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2025-05-23)
+
+
+### Bug Fixes
+
+* update readme, deploy dev pre-release for testing ([579ce10](https://github.com/bldxio/terraform-digitalocean-supabase/commit/579ce10b5839fd94ad9aa20561c2df92ad673ac8))
+
 # [1.0.0-dev.2](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2025-05-23)
 
 

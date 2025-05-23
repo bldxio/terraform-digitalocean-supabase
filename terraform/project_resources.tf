@@ -21,7 +21,7 @@ resource "time_sleep" "wait_for_resources" {
 }
 
 # Assign resources to the specified project
-resource "digitalocean_project_resources" "prd" {
+resource "digitalocean_project_resources" "project" {
   count = local.assign_to_project ? 1 : 0
 
   project = var.do_project_id

@@ -3,7 +3,7 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name supabase.bldx.{{ env "ENVIRONMENT" }};
+    server_name supabase.bldx.${environment};
 
     include /config/nginx/ssl.conf;
     client_max_body_size 20m;
@@ -31,7 +31,7 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name supabase supabase.* supabase-{{ env "ENVIRONMENT" }};
+    server_name supabase supabase.* supabase-${environment};
 
     include /config/nginx/ssl.conf;
     client_max_body_size 20m;

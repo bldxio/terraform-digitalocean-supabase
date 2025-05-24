@@ -1,9 +1,9 @@
-# --- PUBLIC API ENDPOINTS (supabase.bldx.one) ---
+# --- PUBLIC API ENDPOINTS (supabase.bldx.${ENVIRONMENT}) ---
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name supabase.bldx.one;
+    server_name supabase.bldx.{{ env "ENVIRONMENT" }};
 
     include /config/nginx/ssl.conf;
     client_max_body_size 20m;
@@ -31,7 +31,7 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name supabase supabase.*;
+    server_name supabase supabase.* supabase-{{ env "ENVIRONMENT" }};
 
     include /config/nginx/ssl.conf;
     client_max_body_size 20m;

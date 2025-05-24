@@ -1,4 +1,4 @@
-# --- PUBLIC API ENDPOINTS (supabase.bldx.${ENVIRONMENT}) ---
+# --- PUBLIC API ENDPOINTS
 server {
     listen 443 ssl;
     listen [::]:443 ssl;

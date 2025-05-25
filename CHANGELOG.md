@@ -1,8 +1,6 @@
 # [1.0.0-dev.4](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2025-05-24)
 
-
 ### Bug Fixes
-
 * environment handling in nginx config ([aa9fd64](https://github.com/bldxio/terraform-digitalocean-supabase/commit/aa9fd640842b39ae4a743e4ea6321502aa181589))
 
 # [1.0.0-dev.3](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2025-05-23)

@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0...v1.0.1) (2025-05-25)
+
+
+### Bug Fixes
+
+* environment handling in nginx config ([aa9fd64](https://github.com/bldxio/terraform-digitalocean-supabase/commit/aa9fd640842b39ae4a743e4ea6321502aa181589))
+* missing quote in init.sh cloudconfig script ([ccc04ff](https://github.com/bldxio/terraform-digitalocean-supabase/commit/ccc04ff14c314c620c95fdaa3d9d6b09e7dee3f1))
+* update readme, deploy dev pre-release for testing ([579ce10](https://github.com/bldxio/terraform-digitalocean-supabase/commit/579ce10b5839fd94ad9aa20561c2df92ad673ac8))
+
 # 1.0.0 (2025-05-22)
 # [1.0.0-dev.4](https://github.com/bldxio/terraform-digitalocean-supabase/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2025-05-24)
 

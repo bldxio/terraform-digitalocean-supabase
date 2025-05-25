@@ -29,6 +29,35 @@ This module provisions a complete [Supabase](https://supabase.com/) stack on Dig
 
 ## Example Usage
 
+> **⚠️ Warning:** Never use dev or feature branches as sources in production. Only use stable releases from the registry in production.
+
+### Using the Terraform Registry (Recommended for Production)
+```hcl
+module "supabase" {
+  source = "app.terraform.io/BLDX/supabase/digitalocean"
+  # ...
+}
+```
+
+### Using a GitHub Branch (for Dev/Feature Testing)
+```hcl
+module "supabase" {
+  source = "git::https://github.com/bldxio/terraform-digitalocean-supabase.git//terraform?ref=feature/my-feature"
+  # ...
+}
+```
+
+### Using a Specific Tag or Commit
+```hcl
+module "supabase" {
+  source = "git::https://github.com/bldxio/terraform-digitalocean-supabase.git//terraform?ref=v1.2.4-dev.1"
+  # ...
+}
+```
+
+Replace `feature/my-feature` or `v1.2.4-dev.1` with your desired branch, tag, or commit SHA as appropriate.
+
+
 ```hcl
 module "supabase" {
   source = "app.terraform.io/BLDX/supabase/digitalocean"
